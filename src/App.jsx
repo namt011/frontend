@@ -40,6 +40,7 @@ import AddStudentToRoom from './Component/admin/room/AddStudentToRoom.jsx';
 import ProtectedRoute from './Component/ProtectedRoute .jsx';
 import EAccount from './Component/admin/account/eAcount/EAcount.jsx';
 import EAccounts from './Component/admin/account/eAcount/EAcounts.jsx';
+import MainStudentPage from './Component/user/MainStudentPage.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -91,6 +92,8 @@ function App() {
         <Route path='/admin/bills' element={<ProtectedRoute requiredRole="ROOT"><Bills/></ProtectedRoute>}/>
 
         <Route path='/login' element={<Login/>}/>
+
+        <Route path='/dangkiphong' element={<MainStudentPage/>}/>
       </Routes>
     </Router>
   )
