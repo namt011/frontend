@@ -41,6 +41,7 @@ import ProtectedRoute from './Component/ProtectedRoute .jsx';
 import EAccount from './Component/admin/account/eAcount/EAcount.jsx';
 import EAccounts from './Component/admin/account/eAcount/EAcounts.jsx';
 import MainStudentPage from './Component/user/MainStudentPage.jsx';
+import DKRoom from './Component/user/PageForStudent/DKRoom.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -94,6 +95,8 @@ function App() {
         <Route path='/login' element={<Login/>}/>
 
         <Route path='/dangkiphong' element={<MainStudentPage/>}/>
+
+        <Route path='/dangkiphong-studentInfo' element={<DKRoom/>}/>
       </Routes>
     </Router>
   )

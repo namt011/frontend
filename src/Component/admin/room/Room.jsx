@@ -39,12 +39,10 @@ const Room = () => {
           // Fetch students for the room when updating
           listStudent2()
           .then((res) => {
-            console.log('Response from listStudent2:', res); // Log the response
             if (Array.isArray(res.data.data)) {
               // Filter students who are in the current room
               const studentsInRoom = res.data.data.filter(student => student.roomDTO && student.roomDTO.roomId === roomId);
               setStudents(studentsInRoom);
-              console.log(studentsInRoom); // Log the filtered students
             } else {
               console.error('Expected an array but got:', res.data);
             }
@@ -84,7 +82,6 @@ const Room = () => {
 
   const addStudentRoom = () =>{
     navigate('/admin/add-student-room', { state: { roomName } });
-    console.log(roomName)
   }
 
   const deleteStudentFromRoom = (studentId) => {
@@ -96,19 +93,32 @@ const Room = () => {
         ...studentToUpdate.studentDTO,
         roomName: null,  // Remove student from the room
       };
-  
-      updateStudentService(studentId,updatedStudent)
+    
+      updateStudentService(studentId, updatedStudent)
         .then((response) => {
-          console.log('Student removed from room:', response.data);
           // Update students state to reflect the removal
           setStudents(prevStudents => prevStudents.filter(student => student.studentDTO.studentId !== studentId));
+          
+          // After removing a student, update the room's number of students
+          const updatedRoomData = {
+            ...roomData,
+            roomNumber: roomData.roomNumber - 1,  // Decrease room number by 1
+          };
+  
+          updateRoomService(roomId, updatedRoomData)
+            .then((response) => {
+              console.log('Room updated with new number of students');
+            })
+            .catch((error) => {
+              console.error('Error updating room number:', error);
+            });
         })
         .catch((error) => {
           console.error('Error removing student from room:', error);
         });
     }
   };
-
+  
   const saveOrUpdateRoom = (e) => {
     e.preventDefault();
   
@@ -119,29 +129,49 @@ const Room = () => {
     // Append building name to roomName only when creating a new room
     const fullRoomName = roomId ? roomName : `${roomName}${buildingName}`;
   
+    // Prepare the room data
     const roomData = {
       roomName: fullRoomName,  // Use fullRoomName for new rooms only
       roomDes,
       roomType: { roomTypeId: roomType },
       floor: { floorId: floor },
-      roomNumber,
+      roomNumber: 0, // Default value, will be updated later
       roomStatus,
       roomGender: roomGender,
     };
   
+    // Fetch students in the room to calculate the current roomNumber
     if (roomId) {
-      updateRoomService(roomId, roomData)
-        .then((response) => {
-          console.log('Room updated:', response.data);
-          navigate('/admin/rooms');
+      // If updating an existing room, fetch the current list of students in the room
+      listStudent2()
+        .then((res) => {
+          if (Array.isArray(res.data.data)) {
+            // Filter students who are currently in this room
+            const studentsInRoom = res.data.data.filter(student => student.roomDTO && student.roomDTO.roomId === roomId);
+            const updatedRoomData = {
+              ...roomData,
+              roomNumber: studentsInRoom.length,  // Set roomNumber to the number of students in the room
+            };
+  
+            // Call updateRoomService with the updated room data
+            updateRoomService(roomId, updatedRoomData)
+              .then((response) => {
+                navigate('/admin/rooms');
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          } else {
+            console.error('Expected an array but got:', res.data);
+          }
         })
         .catch((error) => {
-          console.error(error);
+          console.error('Error fetching students:', error);
         });
     } else {
+      // If creating a new room, no students yet, so roomNumber remains 0
       createRoomService(roomData)
         .then((response) => {
-          console.log('Room created:', response.data);
           navigate('/admin/rooms');
         })
         .catch((error) => {

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { listUser } from './service/UserService';
-import { listEmployee } from './service/EmployeeService';
+import { listUser } from '../service/UserService';
+import { listStudent } from '../service/StudentService';
+import { useNavigate } from 'react-router-dom';
 
-const Header = ({ onToggleSidebar }) => {
+const HeaderStudent = ({ onToggleSidebar }) => {
   const [userName, setUserName] = useState('User');
   const [userRole, setUserRole] = useState('User');
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Lấy accessToken từ localStorage
@@ -17,7 +19,7 @@ const Header = ({ onToggleSidebar }) => {
       let userList = [];
       if (Array.isArray(users)) {
         userList = users;
-      } else if (users.data.data && Array.isArray(users.data.data)) {
+      } else if (users.data && users.data.data && Array.isArray(users.data.data)) {
         userList = users.data.data;
       } else if (users.users && Array.isArray(users.users)) {
         userList = users.users;
@@ -36,39 +38,39 @@ const Header = ({ onToggleSidebar }) => {
       return null;
     };
 
-    // Lấy dữ liệu người dùng và nhân viên
+    // Lấy dữ liệu người dùng và sinh viên
     const fetchUserData = async () => {
       try {
-        // Gọi API để lấy dữ liệu người dùng và nhân viên
+        // Gọi API để lấy dữ liệu người dùng và sinh viên
         const userResponse = await listUser();
-        const employeeResponse = await listEmployee();
+        const studentResponse = await listStudent();
 
         // Tìm người dùng từ phản hồi của API
         const foundUser = findUserByAccessToken(userResponse);
 
         if (foundUser) {
   
-            // Kiểm tra và đảm bảo employeeResponse là một mảng
-            let employeeList = [];
-            if (Array.isArray(employeeResponse)) {
-              employeeList = employeeResponse; // Nếu là mảng, sử dụng luôn
-            } else if (employeeResponse.data.data && Array.isArray(employeeResponse.data.data)) {
-              employeeList = employeeResponse.data.data; // Nếu là đối tượng với thuộc tính 'data' là mảng
+            // Kiểm tra và đảm bảo studentResponse là một mảng
+            let studentList = [];
+            if (Array.isArray(studentResponse.data)) {
+              studentList = studentResponse.data.data; // Nếu là mảng, sử dụng luôn
+            } else if (studentResponse.data.data && Array.isArray(studentResponse.data.data)) {
+              studentList = studentResponse.data.data; // Nếu là đối tượng với thuộc tính 'data' là mảng
             }
   
-            // Kiểm tra xem employeeList có phải là mảng hợp lệ
-            if (Array.isArray(employeeList)) {
-              // Tìm nhân viên theo username
-              const foundEmployee = employeeList.find(
-                emp => emp.userResponse.userName === foundUser.username
+            // Kiểm tra xem studentList có phải là mảng hợp lệ
+            if (Array.isArray(studentList)) {
+              // Tìm sinh viên theo username
+              const foundStudent = studentList.find(
+                student => student.userResponse.userName === foundUser.username
               );
   
-              if (foundEmployee) {
-                setUserName(foundEmployee.fullname);  // Cập nhật tên nhân viên
+              if (foundStudent) {
+                setUserName(foundStudent.fullname);  // Cập nhật tên sinh viên
                 setUserRole(foundUser.role?.roleName || 'User');  // Cập nhật vai trò
               }
             } else {
-              console.error('Employee list is not valid:', employeeList);
+              console.error('Student list is not valid:', studentList);
             }
           }
         } catch (error) {
@@ -84,10 +86,12 @@ const Header = ({ onToggleSidebar }) => {
       if (accessToken) {
         fetchUserData();
       }
+
     }, []);
 
     const handleLogout = () => {
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('role');
         navigate('/login');
       };
@@ -150,7 +154,6 @@ const Header = ({ onToggleSidebar }) => {
                   <li>
                     <h6 className="dropdown-header">Hello, {userName}!</h6>
                   </li>
-                  
                   <li>
                     <hr className="dropdown-divider"/>
                   </li>
@@ -167,4 +170,4 @@ const Header = ({ onToggleSidebar }) => {
   )
 }
 
-export default Header;
+export default HeaderStudent;

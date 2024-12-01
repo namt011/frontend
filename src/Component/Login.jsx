@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // Sử dụng axios để gọi API
+import axiosInstance from './service/axiosInstance ';
+// Đảm bảo axiosInstance được định nghĩa và cấu hình đúng
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    // Xóa dữ liệu cũ khỏi localStorage
+    localStorage.setItem('accessToken', null);
+    localStorage.setItem('refreshToken', null);
+    localStorage.setItem('role', null);
+  }, []);
 
   const navigate = useNavigate();
 
@@ -23,35 +32,69 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  // Lưu trữ accessToken và role vào localStorage sau khi đăng nhập thành công
+  // Lưu trữ accessToken và refreshToken vào localStorage sau khi đăng nhập thành công
   const saveUserSession = (accessToken, refreshToken) => {
-    console.log('Access Token:', accessToken);
-console.log('Refresh Token:', refreshToken);
     localStorage.setItem('accessToken', accessToken); // Lưu accessToken vào localStorage
-
     localStorage.setItem('refreshToken', refreshToken); // Lưu refreshToken vào localStorage
-    localStorage.setItem('role', "ROOT");
+  };
 
+  // Gọi API /user/getAll và lấy roleName từ dữ liệu
+  const fetchUserRole = async () => {
+    try {
+      // Gọi API /user/getAll với axiosInstance
+      const response = await axiosInstance.get('/user/getAll', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      });
+
+      if (response.status === 200) {
+        const user = response.data.data.find(
+          (user) => user.accessToken === localStorage.getItem('accessToken')
+        );
+
+        if (user) {
+          const roleName = user.role.roleName;
+          console.log('Role Name:', roleName);
+          // Lưu roleName vào localStorage hoặc làm gì đó với giá trị này
+          localStorage.setItem('role', roleName);
+
+          // Kiểm tra role và điều hướng
+          if (roleName !== 'ROOT') {
+            navigate('/dangkiphong'); // Nếu role không phải ROOT, chuyển đến trang đăng ký phòng
+          } else {
+            navigate('/admin/students'); // Nếu role là ROOT, chuyển đến trang admin
+          }
+        } else {
+          console.error('Token không khớp với bất kỳ người dùng nào');
+        }
+      } else {
+        console.error('Không thể lấy dữ liệu người dùng');
+      }
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+    }
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     console.log('Submitting login form...');
-  
+
     try {
       const response = await axios.post('http://localhost:8080/auth/signin', {
         username: email,
         password: password,
       });
-  
+
       console.log(response); // Kiểm tra xem phản hồi có đúng không
-  
+
       if (response.status === 200) { // Kiểm tra status code thay vì `response.code`
         const { accessToken, refreshToken } = response.data;
-  
-        saveUserSession(accessToken, refreshToken);
-  
-        navigate('/admin/students');
+
+        saveUserSession(accessToken, refreshToken); // Lưu accessToken vào localStorage
+
+        // Sau khi lưu accessToken, gọi API lấy role
+        await fetchUserRole(); // Lấy roleName và điều hướng sau khi gọi API thành công
       } else {
         setErrorMessage('Login failed. Please try again.');
       }

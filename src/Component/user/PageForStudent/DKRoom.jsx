@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import SideBar from '../../SideBar.jsx';
-import Header from '../../Header.jsx';
+import HeaderStudent from '../HeaderStudent.jsx';
+import SideBarStudent from '../SideBarStudent.jsx';
 import Footer from '../../Footer.jsx';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { createStudentService, updateStudentService, get1StudentService,listStudent2 } from '../../service/StudentService.js';
+import { get1StudentService,listStudent2 } from '../../service/StudentService.js';
+import { listRoomType } from '../../service/RoomService.js';
+import axios from 'axios';
 
-const AddStudent = () => {
+const DKRoom = () => {
   const [isActive, setIsActive] = useState(window.innerWidth >= 1200);
+
+  const [roomTypeInfo, setRoomTypeInfo] = useState(null);
+  const [roomTypes, setRoomTypes] = useState([]);
 
   // Student information states
   const [studentId, setStudentId] = useState('');
@@ -34,8 +39,10 @@ const AddStudent = () => {
   const navigator = useNavigate();
 
   useEffect(() => {
+    
     const effectiveStudentId = ID || studentIdFromState;
     if (effectiveStudentId) {
+      
       get1StudentService(effectiveStudentId).then((response) => {
         const student = response.data.data;
         setStudentId(effectiveStudentId);
@@ -64,6 +71,31 @@ const AddStudent = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [ID, studentIdFromState]);
+
+  useEffect(() => {
+    // Fetch room types
+    listRoomType().then((response) => {
+      setRoomTypes(response.data?.data || []);
+    }).catch(error => {
+      console.error('Error fetching room types:', error);
+    });
+
+    // Lấy roomTypeId từ state
+    const roomTypeIdFromState = state?.roomTypeId;
+
+    // Nếu có roomTypeId trong state, tìm thông tin roomType tương ứng
+    if (roomTypeIdFromState) {
+      const matchedRoomType = roomTypes.find(
+        roomType => roomType.roomTypeId === roomTypeIdFromState
+      );
+      
+      if (matchedRoomType) {
+        setRoomTypeInfo(matchedRoomType);
+      }
+    }
+
+    // ... (giữ nguyên logic khác trong useEffect)
+  }, [state?.roomTypeId, roomTypes.length]);  
 
   const toggleSidebar = () => {  
     setIsActive(prev => !prev);
@@ -226,52 +258,75 @@ const AddStudent = () => {
     e.preventDefault();
     const isValid = await validateForm();
     
-    if (isValid) {
-      const student = {
-        studentId: ID || studentId,
-        studentClass,
-        fullname,
-        dateOfBirth,
-        studentIdentification,
-        studentAddress,
-        phoneNumber,
-        relativesPhone,
-        studentEmail,
-        studentGender: studentGender,
-        ethnicity,
-        studentStatus: parseInt(studentStatus),
-        studentPriority,
-        roomName
+    if (isValid && roomTypeInfo) {
+      // Tạo đối tượng requestBody cho API signup
+      const requestBody = {
+        contractId: null, // Để null hoặc generate ID nếu cần
+        student: {
+          studentId: ID || studentId,
+          fullname: fullname,
+          dateOfBirth: dateOfBirth,
+          startDate: new Date().toISOString(), // Ngày hiện tại
+          endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(), // 1 năm từ ngày hiện tại
+          studentClass: studentClass,
+          ethnicity: ethnicity,
+          studentAddress: studentAddress,
+          studentGender: studentGender,
+          studentIdentification: studentIdentification,
+          phoneNumber: phoneNumber,
+          relativesPhone: relativesPhone,
+          studentEmail: studentEmail,
+          studentPriority: parseInt(studentPriority),
+          studentStatus: parseInt(studentStatus),
+          roomName: roomName,
+          userResponse: {
+            userName: studentEmail, // Có thể sử dụng email làm username
+            passWord: studentIdentification // Có thể sử dụng số căn cước làm mật khẩu mặc định
+          }
+        },
+        roomType: {
+          roomTypeId: roomTypeInfo.roomTypeId,
+          roomTypeName: roomTypeInfo.roomTypeName,
+          roomTypeDes: roomTypeInfo.roomTypeDes,
+          roomTypePrice: roomTypeInfo.roomTypePrice,
+          roomTypeDeposit: roomTypeInfo.roomTypeDeposit,
+          roomNumber: roomTypeInfo.roomNumber
+        },
+        reduceCost: 0, // Mặc định
+        startDate: new Date().toISOString(),
+        contractRent: roomTypeInfo.roomTypePrice,
+        endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
+        contractStatus: "WAITING"
       };
-  
-      if (ID || studentIdFromState) {
-        updateStudentService(ID || studentIdFromState, student).then((response) => {
-          navigator('/admin/students');
-        }).catch(error => {
-          console.error(error);
-        });
-      } else {
-        createStudentService(student).then((response) => {
-          navigator('/admin/students');
-        }).catch(error => {
-          console.error(error);
-        });
+
+      try {
+        // Gọi API signup
+        const response = await axios.post('http://localhost:8080/auth/signup', requestBody);
+        console.log('Signup successful:', response.data);
+        // Xử lý sau khi signup thành công (chuyển trang, hiển thị thông báo, v.v.)
+        alert('Đăng ký phòng thành công!');
+        navigator('/login'); // Chuyển đến trang dashboard sau khi đăng ký
+      } catch (error) {
+        console.error('Signup failed:', error);
+        alert('Đăng ký phòng thất bại. Vui lòng thử lại.');
       }
+    } else {
+      alert('Vui lòng chọn loại phòng và điền đầy đủ thông tin.');
     }
   }
   function pageTitle() {
     if (ID || studentIdFromState) {
       return <h4 className="card-title">Cập nhật thông tin sinh viên</h4>;
     } else {
-      return <h4 className="card-title">Thêm mới sinh viên</h4>;
+      return <h4 className="card-title">Điền thông tin sinh viên để đăng ký phòng</h4>;
     }
   }
 
   return (
     <div id='app'>
       <div id='main'>
-        <Header onToggleSidebar={toggleSidebar} />
-        <SideBar isActive={isActive} onToggleSidebar={toggleSidebar} />
+        <HeaderStudent onToggleSidebar={toggleSidebar} />
+        <SideBarStudent isActive={isActive} onToggleSidebar={toggleSidebar} />
         <div id='main-content'>
           <section id="multiple-column-form">
             <div className="row match-height">
@@ -571,4 +626,4 @@ const AddStudent = () => {
   );
 };
 
-export default AddStudent;
+export default DKRoom;

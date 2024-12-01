@@ -9,7 +9,7 @@ import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 
-const SideBar = ({ isActive, onToggleSidebar }) => {
+const SideBarStudent = ({ isActive, onToggleSidebar }) => {
   const [activeSubmenus, setActiveSubmenus] = useState({});
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const sidebarRef = useRef(null);
@@ -40,30 +40,11 @@ const SideBar = ({ isActive, onToggleSidebar }) => {
   };
 
   const sidebarItems = [
-    { title: 'Quản lý sinh viên', icon: 'bi-grid-fill', link: '/admin/students' },
-    {
-      title: 'Quản lý phòng',
-      icon: 'bi-stack',
-      subItems: [
-        { title: 'Tòa nhà', icon: 'bi bi-building', link: '/admin/buildings' },
-        { title: 'Tầng', icon: 'bi bi-menu-button-wide-fill', link: '/admin/floors' },
-        { title: 'Loại phòng ', icon: 'bi bi-menu-button-wide-fill', link: '/admin/roomtypes' },
-        { title: 'Phòng', icon: 'bi bi-app', link: '/admin/rooms' }
-      ],
-    },
-    { title: 'Hợp đồng', icon: 'bi bi-newspaper', link: '/admin/contracts' },
-    { title: 'Thanh toán ', icon: 'bi bi-credit-card', link: '/admin/bills' },
-    { title: 'Nhân viên', icon: 'bi bi-people-fill', link: '/admin/employees' },
-    { title: 'Yêu cầu', icon: 'bi bi-chat-right-dots-fill', link: '/admin/requests' },
-    {
-      title: 'Quản lý tài khoản',
-      icon: 'bi-person-circle',
-      subItems: [
-        { title: 'Sinh viên', icon: 'bi bi-person-circle', link: '/admin/accounts' },
-        { title: 'Nhân viên', icon: 'bi bi-person-circle', link: '/admin/e-accounts' }
-      ],
-    },
-    { title: 'Báo cáo ', icon: 'bi-file-earmark-medical-fill', link: '/admin/report' },
+    { title: 'Đăng ký phòng', icon: 'bi bi-house', link: '/room-registration' },
+    { title: 'Yêu cầu khiếu nại', icon: 'bi bi-exclamation-circle', link: '/request' },
+    { title: 'Hợp đồng', icon: 'bi bi-file-text', link: '/contract' },
+    { title: 'Thanh toán', icon: 'bi bi-wallet2', link: '/pay' },
+    { title: 'Tài khoản', icon: 'bi bi-person', link: '/my-account' }
   ];
 
   return (
@@ -158,4 +139,4 @@ const SideBar = ({ isActive, onToggleSidebar }) => {
   );
 };
 
-export default SideBar;
+export default SideBarStudent;

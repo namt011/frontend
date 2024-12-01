@@ -74,7 +74,8 @@ const Rooms = () => {
       title: room.roomName || 'Unnamed Room',
       gender: room.roomGender || 0,
       text: room.roomStatus || 'No status',
-      roomNumber: room.roomNumber || ''
+      roomMaxNumber: room.roomType.roomNumber || '',
+      roomNumber: room.roomNumber || '0'
     });
 
     return acc;
@@ -118,7 +119,6 @@ const deleteRoom = (roomId) => {
       </div>
     );
   }
-  console.log("Processed card data by tab:", cardDataByTab);
   return (
     <div id='app'>
       <div id='main'>
@@ -230,7 +230,7 @@ const deleteRoom = (roomId) => {
                           </button>
                         </div>
                         <p className="card-text">{card.text}</p>
-                        <small className="text-muted">Số người đang ở */{card.roomNumber} người</small>
+                        <small className="text-muted">Số người đang ở {card.roomNumber}/{card.roomMaxNumber} người</small>
                         <div className="card-footer p-0 mt-2 pt-2">
                           <div className="d-flex gap-2">
                             <button type="button" className="btn btn-primary" onClick={()=>updateRoom(card.ID)}>
