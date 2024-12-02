@@ -18,6 +18,8 @@ const RequestUC = () => {
   
   const { requirementId } = useParams();
 
+  
+
   useEffect(() => {
     const handleResize = () => {
       setIsActive(window.innerWidth >= 1200);

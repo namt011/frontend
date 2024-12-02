@@ -44,7 +44,7 @@ const SideBarStudent = ({ isActive, onToggleSidebar }) => {
     { title: 'Yêu cầu khiếu nại', icon: 'bi bi-exclamation-circle', link: '/requests' },
     { title: 'Hợp đồng', icon: 'bi bi-file-text', link: '/contracts' },
     { title: 'Thanh toán', icon: 'bi bi-wallet2', link: '/pays' },
-    { title: 'Tài khoản', icon: 'bi bi-person', link: '/my-account' }
+    { title: 'Thông tin cá nhân', icon: 'bi bi-person', link: '/my-profile' }
   ];
 
   return (

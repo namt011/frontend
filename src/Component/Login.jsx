@@ -13,10 +13,10 @@ const Login = () => {
 
   useEffect(() => {
     // Xóa dữ liệu cũ khỏi localStorage
-    localStorage.setItem('accessToken', null);
-    localStorage.setItem('refreshToken', null);
-    localStorage.setItem('role', null);
-    localStorage.setItem('ID', null);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('role');
+    localStorage.removeItem('ID');
   }, []);
 
   const navigate = useNavigate();
@@ -57,13 +57,12 @@ const Login = () => {
 
         if (user) {
           const roleName = user.role.roleName;
-          console.log('Role Name:', roleName);
           // Lưu roleName vào localStorage hoặc làm gì đó với giá trị này
           localStorage.setItem('role', roleName);
 
           // Kiểm tra role và điều hướng
           if (roleName !== 'ROOT') {
-            navigate('/dangkiphong'); // Nếu role không phải ROOT, chuyển đến trang đăng ký phòng
+            navigate('/requests'); // Nếu role không phải ROOT, chuyển đến trang đăng ký phòng
           } else {
             navigate('/admin/students'); // Nếu role là ROOT, chuyển đến trang admin
           }

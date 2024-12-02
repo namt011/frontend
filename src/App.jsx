@@ -48,6 +48,7 @@ import RequestST from './Component/user/PageForStudent/request/RequestST.jsx';
 import ContractSTs from './Component/user/PageForStudent/contract/ContractSTs.jsx';
 import ContractST from './Component/user/PageForStudent/contract/ContractST.jsx';
 import Pays from './Component/user/PageForStudent/pays/Pays.jsx';
+import MyProfile from './Component/user/PageForStudent/MyProfile.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -115,6 +116,7 @@ function App() {
         <Route path='/detail-contract/:contractId' element={<ContractST/>}/>
 
         <Route path='/pays' element={<Pays/>}/>
+        <Route path='/my-profile' element={<MyProfile/>}/>
 
       </Routes>
     </Router>

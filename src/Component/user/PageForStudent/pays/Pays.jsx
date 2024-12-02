@@ -139,7 +139,13 @@ const Pays = () => {
         <td>{bill.billDetails?.[1]?.value}</td>
         <td>{bill.billDetails?.[0]?.value}</td>
         <td>{new Date(bill.billDetails?.[0]?.services?.createAt).toLocaleDateString()}</td>
-        <td>{bill.billStatus}</td>
+        <td>
+        {bill.billStatus === "COMPLETE" ? (
+          <span style={{ color: 'green' }}>Đã thanh toán</span>
+        ) : (
+          <span style={{ color: 'red' }}>Chưa thanh toán</span>
+        )}
+      </td>
         <td>
           <button 
             className={`btn ${bill.billStatus === "COMPLETE" ? 'btn-secondary' : 'btn-success'}`} 
