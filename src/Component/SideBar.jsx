@@ -63,7 +63,6 @@ const SideBar = ({ isActive, onToggleSidebar }) => {
         { title: 'Nhân viên', icon: 'bi bi-person-circle', link: '/admin/e-accounts' }
       ],
     },
-    { title: 'Báo cáo ', icon: 'bi-file-earmark-medical-fill', link: '/admin/report' },
   ];
 
   return (

@@ -11,11 +11,15 @@ const HeaderStudent = ({ onToggleSidebar }) => {
   useEffect(() => {
     // Lấy accessToken từ localStorage
     const accessToken = localStorage.getItem('accessToken');
-
+  
+    // Nếu không có accessToken, không thực hiện việc gọi API
+    if (!accessToken) {
+      console.log('No access token found, skipping data fetch.');
+      return; // Dừng lại nếu không có accessToken
+    }
+  
     // Tìm người dùng dựa trên accessToken
     const findUserByAccessToken = (users) => {
-
-      // Xử lý các cấu trúc dữ liệu khác nhau
       let userList = [];
       if (Array.isArray(users)) {
         userList = users;
@@ -24,70 +28,61 @@ const HeaderStudent = ({ onToggleSidebar }) => {
       } else if (users.users && Array.isArray(users.users)) {
         userList = users.users;
       }
-
-
-      // Nếu userList là một mảng, sử dụng find để tìm người dùng
+  
       if (Array.isArray(userList)) {
         return userList.find(user => 
           user.accessToken === accessToken || 
           user.accessToken === localStorage.getItem('accessToken')
         );
       }
-
+  
       console.error('Không tìm thấy danh sách người dùng hợp lệ');
       return null;
     };
-
-    // Lấy dữ liệu người dùng và sinh viên
+  
     const fetchUserData = async () => {
       try {
         // Gọi API để lấy dữ liệu người dùng và sinh viên
         const userResponse = await listUser();
         const studentResponse = await listStudent();
-
-        // Tìm người dùng từ phản hồi của API
+  
         const foundUser = findUserByAccessToken(userResponse);
-
+  
         if (foundUser) {
-  
-            // Kiểm tra và đảm bảo studentResponse là một mảng
-            let studentList = [];
-            if (Array.isArray(studentResponse.data)) {
-              studentList = studentResponse.data.data; // Nếu là mảng, sử dụng luôn
-            } else if (studentResponse.data.data && Array.isArray(studentResponse.data.data)) {
-              studentList = studentResponse.data.data; // Nếu là đối tượng với thuộc tính 'data' là mảng
-            }
-  
-            // Kiểm tra xem studentList có phải là mảng hợp lệ
-            if (Array.isArray(studentList)) {
-              // Tìm sinh viên theo username
-              const foundStudent = studentList.find(
-                student => student.userResponse.userName === foundUser.username
-              );
-  
-              if (foundStudent) {
-                setUserName(foundStudent.fullname);  // Cập nhật tên sinh viên
-                setUserRole(foundUser.role?.roleName || 'User');  // Cập nhật vai trò
-              }
-            } else {
-              console.error('Student list is not valid:', studentList);
-            }
+          let studentList = [];
+          if (Array.isArray(studentResponse.data)) {
+            studentList = studentResponse.data.data;
+          } else if (studentResponse.data.data && Array.isArray(studentResponse.data.data)) {
+            studentList = studentResponse.data.data;
           }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          console.error('Error details:', {
-            name: error.name,
-            message: error.message,
-            stack: error.stack
-          });
-        }
-      };
   
-      if (accessToken) {
-        fetchUserData();
+          if (Array.isArray(studentList)) {
+            const foundStudent = studentList.find(
+              student => student.userResponse.userName === foundUser.username
+            );
+  
+            if (foundStudent) {
+              setUserName(foundStudent.fullname);
+              setUserRole(foundUser.role?.roleName || 'User');
+            }
+          } else {
+            console.error('Student list is not valid:', studentList);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        console.error('Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
       }
-
-    }, []);
+    };
+  
+    fetchUserData(); // Gọi hàm fetchUserData nếu có accessToken
+  
+  }, []); // Chạy useEffect một lần khi component được mount
+  
 
     const handleLogout = () => {
         localStorage.removeItem('accessToken');

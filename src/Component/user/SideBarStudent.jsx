@@ -42,7 +42,7 @@ const SideBarStudent = ({ isActive, onToggleSidebar }) => {
   const sidebarItems = [
     { title: 'Đăng ký phòng', icon: 'bi bi-house', link: '/dangkiphong' },
     { title: 'Yêu cầu khiếu nại', icon: 'bi bi-exclamation-circle', link: '/requests' },
-    { title: 'Hợp đồng', icon: 'bi bi-file-text', link: '/contract' },
+    { title: 'Hợp đồng', icon: 'bi bi-file-text', link: '/contracts' },
     { title: 'Thanh toán', icon: 'bi bi-wallet2', link: '/pays' },
     { title: 'Tài khoản', icon: 'bi bi-person', link: '/my-account' }
   ];

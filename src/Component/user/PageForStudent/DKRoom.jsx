@@ -3,325 +3,149 @@ import HeaderStudent from '../HeaderStudent.jsx';
 import SideBarStudent from '../SideBarStudent.jsx';
 import Footer from '../../Footer.jsx';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { get1StudentService,listStudent2 } from '../../service/StudentService.js';
 import { listRoomType } from '../../service/RoomService.js';
 import axios from 'axios';
+import axiosInstance from '../../service/axiosInstance .jsx';
 
 const DKRoom = () => {
   const [isActive, setIsActive] = useState(window.innerWidth >= 1200);
-
-  const [roomTypeInfo, setRoomTypeInfo] = useState(null);
-  const [roomTypes, setRoomTypes] = useState([]);
-
-  // Student information states
   const [studentId, setStudentId] = useState('');
-  const [studentClass, setStudentClass] = useState('');
   const [fullname, setFullname] = useState('');
+  const [studentClass, setStudentClass] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [studentIdentification, setStudentIdentification] = useState('');
   const [studentAddress, setStudentAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [relativesPhone, setRelativesPhone] = useState('');
   const [studentEmail, setStudentEmail] = useState('');
-  const [studentGender, setStudentGender] = useState('');
+  const [studentGender, setStudentGender] = useState(true);  // default to male (true)
   const [ethnicity, setEthnicity] = useState('');
-  const [studentStatus, setStudentStatus] = useState('');
-  const [studentPriority, setStudentPriority] = useState('');
-  const [roomName, setRoomName] = useState('');
-
-  // Validation state
+  const [studentPriority, setStudentPriority] = useState('1');
   const [errors, setErrors] = useState({});
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [selectedRoomType, setSelectedRoomType] = useState(null);
+  const [polling, setPolling] = useState(false);
+  const { state } = useLocation();
 
-  const { ID } = useParams();
-  const location = useLocation();
-  const { state } = location;
-  const studentIdFromState = state?.studentId;
   const navigator = useNavigate();
+  
+  useEffect(() => {
+    const fetchRoomTypes = async () => {
+      try {
+        const response = await listRoomType();  
+        setRoomTypes(response.data.data);
+      } catch (error) {
+        console.error("Error fetching room types:", error);
+      }
+    };
+
+    fetchRoomTypes();
+  }, []);
+
+  const roomTypeId = state?.roomTypeId;
+  useEffect(() => {
+    if (roomTypeId && roomTypes.length > 0) {
+        const roomType = roomTypes.find(room => room.roomTypeId === roomTypeId);
+        setSelectedRoomType(roomType);
+    }
+  }, [roomTypeId, roomTypes]);
 
   useEffect(() => {
-    
-    const effectiveStudentId = ID || studentIdFromState;
-    if (effectiveStudentId) {
-      
-      get1StudentService(effectiveStudentId).then((response) => {
-        const student = response.data.data;
-        setStudentId(effectiveStudentId);
-        setStudentClass(student.studentClass);
-        setFullname(student.fullname);
-        setDateOfBirth(student.dateOfBirth);
-        setStudentIdentification(student.studentIdentification);
-        setStudentAddress(student.studentAddress);
-        setPhoneNumber(student.phoneNumber);
-        setRelativesPhone(student.relativesPhone);
-        setStudentEmail(student.studentEmail);
-        setStudentGender(student.studentGender);
-        setEthnicity(student.ethnicity);
-        setStudentStatus(student.studentStatus);
-        setStudentPriority(student.studentPriority);
-        setRoomName(student.roomName || '');
-      }).catch(error => {
-        console.error(error);
-      });
-    }
-
     const handleResize = () => {
       setIsActive(window.innerWidth >= 1200);
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [ID, studentIdFromState]);
+  }, []);
 
-  useEffect(() => {
-    // Fetch room types
-    listRoomType().then((response) => {
-      setRoomTypes(response.data?.data || []);
-    }).catch(error => {
-      console.error('Error fetching room types:', error);
-    });
-
-    // Lấy roomTypeId từ state
-    const roomTypeIdFromState = state?.roomTypeId;
-
-    // Nếu có roomTypeId trong state, tìm thông tin roomType tương ứng
-    if (roomTypeIdFromState) {
-      const matchedRoomType = roomTypes.find(
-        roomType => roomType.roomTypeId === roomTypeIdFromState
-      );
-      
-      if (matchedRoomType) {
-        setRoomTypeInfo(matchedRoomType);
-      }
-    }
-
-    // ... (giữ nguyên logic khác trong useEffect)
-  }, [state?.roomTypeId, roomTypes.length]);  
-
-  const toggleSidebar = () => {  
+  const toggleSidebar = () => {
     setIsActive(prev => !prev);
   };
 
-  const validateForm = async () => {
-    const newErrors = {};
-    let isValid = true;
+
+
+  const handlePayment = async () => {
+    if (polling) return;
+    setPolling(true);
+  
+    const billId = Math.floor(1000000000 + Math.random() * 9000000000).toString(); // Tạo billId ngẫu nhiên với 20 ký tự
+    const amount = selectedRoomType?.roomTypePrice + selectedRoomType?.roomTypeDeposit; // Tính tổng amount
+    const studentPaymentInfo = `${studentId}_${billId}`; // Tạo paymentInfo để kiểm tra
+    
+    const studentData = {
+      student: {
+        studentId,
+        fullname,
+        dateOfBirth,
+        startDate: new Date().toISOString(),
+        endDate: new Date().toISOString(),
+        studentClass,
+        ethnicity,
+        studentAddress,
+        studentGender,
+        studentIdentification,
+        phoneNumber,
+        relativesPhone,
+        studentEmail,
+        studentPriority,
+        studentStatus: 1,  // Default student status is 1
+      },
+      staff: null,
+      roomType: selectedRoomType,  // Assuming selectedRoomType is set correctly
+      reduceCost: 0  // Default reduce cost
+    };
   
     try {
-      const response = await listStudent2();
-      const students = response.data?.data || [];
-  
-      // Validate student ID
-      if (!studentId.trim()) {
-        newErrors.studentId = 'Mã sinh viên là bắt buộc.';
-        isValid = false;
-      } else if (
-        students.some(
-          student => 
-            student.studentDTO?.studentId === studentId && 
-            student.studentDTO?.studentId !== (ID || studentIdFromState)
-        )
-      ) {
-        newErrors.studentId = 'Mã sinh viên đã tồn tại trong hệ thống.';
-        isValid = false;
-      }
-  
-      // Validate student identification (citizen ID)
-      if (!studentIdentification.trim()) {
-        newErrors.studentIdentification = 'Số căn cước là bắt buộc.';
-        isValid = false;
-      } else if (
-        students.some(
-          student => 
-            student.studentDTO?.studentIdentification === studentIdentification && 
-            student.studentDTO?.studentId !== (ID || studentIdFromState)
-        )
-      ) {
-        newErrors.studentIdentification = 'Số căn cước đã tồn tại trong hệ thống.';
-        isValid = false;
-      }
-  
-      // Validate phone number
-      if (!phoneNumber.trim()) {
-        newErrors.phoneNumber = 'Số điện thoại là bắt buộc.';
-        isValid = false;
-      } else if (!/^\d{10,11}$/.test(phoneNumber)) {
-        newErrors.phoneNumber = 'Số điện thoại không hợp lệ (10 hoặc 11 chữ số).';
-        isValid = false;
-      } else if (
-        students.some(
-          student => 
-            student.studentDTO?.phoneNumber === phoneNumber && 
-            student.studentDTO?.studentId !== (ID || studentIdFromState)
-        )
-      ) {
-        newErrors.phoneNumber = 'Số điện thoại đã tồn tại trong hệ thống.';
-        isValid = false;
-      }
-  
-      // Validate email
-      if (!studentEmail.trim()) {
-        newErrors.studentEmail = 'Email là bắt buộc.';
-        isValid = false;
-      } else if (!/\S+@\S+\.\S+/.test(studentEmail)) {
-        newErrors.studentEmail = 'Email không hợp lệ.';
-        isValid = false;
-      } else if (
-        students.some(
-          student => 
-            student.studentDTO?.studentEmail === studentEmail && 
-            student.studentDTO?.studentId !== (ID || studentIdFromState)
-        )
-      ) {
-        newErrors.studentEmail = 'Email đã tồn tại trong hệ thống.';
-        isValid = false;
-      }
-  
-      // Rest of the validation remains the same...
-      if (!studentClass.trim()) {
-        newErrors.studentClass = 'Lớp-Khóa là bắt buộc.';
-        isValid = false;
-      } else {
-        const classPattern = /^[A-Za-z0-9]+-\d{2}$/;
-        const classList = studentClass.split(/\s+/);
-      
-        for (let i = 0; i < classList.length; i++) {
-          if (!classPattern.test(classList[i].trim())) {
-            newErrors.studentClass = 'Lớp-Khóa không hợp lệ (định dạng: TênLớp-SốKhóa).';
-            isValid = false;
-            break;
-          }
+      // Gọi API GET /api/payment/vn-pay trước khi tiếp tục đăng ký
+      const paymentResponse = await axiosInstance.get('/api/payment/vn-pay', {
+        params: {
+          amount: amount,
+          studentId: studentId,
+          billId: billId
         }
-      }
+      });
   
-
-    if (!studentAddress.trim()) {
-      newErrors.studentAddress = 'Địa chỉ là bắt buộc.';
-      isValid = false;
-    }
-
-
-    // Validate fullname
-    if (!fullname.trim()) {
-      newErrors.fullname = 'Họ và tên là bắt buộc.';
-      isValid = false;
-    }
-
-    // Validate date of birth
-    if (!dateOfBirth.trim()) {
-      newErrors.dateOfBirth = 'Ngày sinh là bắt buộc.';
-      isValid = false;
-    } else if (!/\d{4}-\d{2}-\d{2}/.test(dateOfBirth)) {
-      newErrors.dateOfBirth = 'Ngày sinh không hợp lệ (định dạng: yyyy-mm-dd).';
-      isValid = false;
-    }
-
-
-    if (!relativesPhone.trim()) {
-      newErrors.relativesPhone = 'Số điện thoại người thân là bắt buộc.';
-      isValid = false;
-    } else if (!/^\d{10,11}$/.test(relativesPhone)) {
-      newErrors.relativesPhone = 'Số điện thoại người thân không hợp lệ (10 hoặc 11 chữ số).';
-      isValid = false;
-    }
-
-    // Validate gender
-    if (studentGender === '') {
-      newErrors.studentGender = 'Giới tính là bắt buộc.';
-      isValid = false;
-    }
-
-    // Validate ethnicity
-    if (!ethnicity) {
-      newErrors.ethnicity = 'Dân tộc là bắt buộc.';
-      isValid = false;
-    }
-
-    // Validate student status
-    if (!studentStatus) {
-      newErrors.studentStatus = 'Trạng thái là bắt buộc.';
-      isValid = false;
-    }
-
-    // Validate student priority
-    if (!studentPriority) {
-      newErrors.studentPriority = 'Ưu tiên là bắt buộc.';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  } catch (error) {
-    console.error('Error fetching student list:', error);
-    return false;
-  }
-  };
-  async function saveOrUpdateStudent(e) {
-    e.preventDefault();
-    const isValid = await validateForm();
-    
-    if (isValid && roomTypeInfo) {
-      // Tạo đối tượng requestBody cho API signup
-      const requestBody = {
-        contractId: null, // Để null hoặc generate ID nếu cần
-        student: {
-          studentId: ID || studentId,
-          fullname: fullname,
-          dateOfBirth: dateOfBirth,
-          startDate: new Date().toISOString(), // Ngày hiện tại
-          endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(), // 1 năm từ ngày hiện tại
-          studentClass: studentClass,
-          ethnicity: ethnicity,
-          studentAddress: studentAddress,
-          studentGender: studentGender,
-          studentIdentification: studentIdentification,
-          phoneNumber: phoneNumber,
-          relativesPhone: relativesPhone,
-          studentEmail: studentEmail,
-          studentPriority: parseInt(studentPriority),
-          studentStatus: parseInt(studentStatus),
-          roomName: roomName,
-          userResponse: {
-            userName: studentEmail, // Có thể sử dụng email làm username
-            passWord: studentIdentification // Có thể sử dụng số căn cước làm mật khẩu mặc định
+      const paymentUrl = paymentResponse.data.data.paymentUrl;
+      
+      // Mở tab mới với URL thanh toán
+      window.open(paymentUrl, '_blank');
+  
+      // Bắt đầu kiểm tra thanh toán mỗi 5 giây trong 15 phút
+      const intervalId = setInterval(async () => {
+        try {
+          const getAllPaymentsResponse = await axiosInstance.get('/api/payment/getAll');
+          const payments = getAllPaymentsResponse.data.body.data;
+          
+          // Kiểm tra nếu paymentInfo khớp với studentPaymentInfo
+          const paymentFound = payments.some(payment => payment.paymentInfo === studentPaymentInfo);
+          
+          if (paymentFound) {
+            clearInterval(intervalId); // Dừng việc gọi API
+            
+            // Thanh toán thành công, tiếp tục đăng ký sinh viên
+            const signupResponse = await axiosInstance.post('/auth/signup', studentData);
+           
+            alert("Đăng ký thành công!");
+            navigator('/login')
           }
-        },
-        roomType: {
-          roomTypeId: roomTypeInfo.roomTypeId,
-          roomTypeName: roomTypeInfo.roomTypeName,
-          roomTypeDes: roomTypeInfo.roomTypeDes,
-          roomTypePrice: roomTypeInfo.roomTypePrice,
-          roomTypeDeposit: roomTypeInfo.roomTypeDeposit,
-          roomNumber: roomTypeInfo.roomNumber
-        },
-        reduceCost: 0, // Mặc định
-        startDate: new Date().toISOString(),
-        contractRent: roomTypeInfo.roomTypePrice,
-        endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
-        contractStatus: "WAITING"
-      };
-
-      try {
-        // Gọi API signup
-        const response = await axios.post('http://localhost:8080/auth/signup', requestBody);
-        console.log('Signup successful:', response.data);
-        // Xử lý sau khi signup thành công (chuyển trang, hiển thị thông báo, v.v.)
-        alert('Đăng ký phòng thành công!');
-        navigator('/login'); // Chuyển đến trang dashboard sau khi đăng ký
-      } catch (error) {
-        console.error('Signup failed:', error);
-        alert('Đăng ký phòng thất bại. Vui lòng thử lại.');
-      }
-    } else {
-      alert('Vui lòng chọn loại phòng và điền đầy đủ thông tin.');
+        } catch (error) {
+          console.error('Error fetching payment data:', error);
+        }
+      }, 5000); // Gọi mỗi 5 giây
+  
+      // Sau 15 phút (900.000 ms), dừng kiểm tra nếu không có kết quả
+      setTimeout(() => {
+        clearInterval(intervalId);
+        alert("Hết thời gian chờ thanh toán");
+      }, 900000); // 15 phút
+  
+    } catch (error) {
+      console.error('Error during payment or signup:', error);
+    } finally {
+      setPolling(false);
     }
-  }
-  function pageTitle() {
-    if (ID || studentIdFromState) {
-      return <h4 className="card-title">Cập nhật thông tin sinh viên</h4>;
-    } else {
-      return <h4 className="card-title">Điền thông tin sinh viên để đăng ký phòng</h4>;
-    }
-  }
-
+  };
   return (
     <div id='app'>
       <div id='main'>
@@ -332,8 +156,9 @@ const DKRoom = () => {
             <div className="row match-height">
               <div className="col-12">
                 <div className="card">
-                  <div className="card-header">
-                    {pageTitle()}
+                  <div className="card-header d-flex justify-content-between align-items-center">
+                  <h4 className="card-title">Điền thông tin sinh viên để đăng ký phòng</h4>
+                  <p>Lưu ý: sau khi điền đầy đủ thông tin sẽ cần phải thanh toán tiền phòng để có thể đăng ký</p>
                   </div>
                   <div className="card-content">
                     <div className="card-body">
@@ -347,13 +172,12 @@ const DKRoom = () => {
   type="text"
   className="form-control"
   placeholder="Mã sinh viên"
-  value={ID ? ID : studentId}
+  value={studentId}
   onChange={e => setStudentId(e.target.value)}
-  required
-  readOnly={!!ID || studentIdFromState} // Đảm bảo readOnly được áp dụng khi có ID
+  required// Đảm bảo readOnly được áp dụng khi có ID
 />
 
-                              {errors.studentId && <small className="text-danger">{errors.studentId}</small>}
+                              
                             </div>
                           </div>
                           <div className="col-md-6 col-12">
@@ -367,7 +191,7 @@ const DKRoom = () => {
                                 onChange={e => setFullname(e.target.value)}
                                 required
                               />
-                              {errors.fullname && <small className="text-danger">{errors.fullname}</small>}
+                             
                             </div>
                           </div>
                           <div className="col-md-6 col-12">
@@ -381,7 +205,7 @@ const DKRoom = () => {
                                 onChange={e => setStudentClass(e.target.value)}
                                 required
                               />
-                              {errors.studentClass && <small className="text-danger">{errors.studentClass}</small>}
+                             
                             </div>
                           </div>
                           <div className="col-md-6 col-12">
@@ -395,7 +219,7 @@ const DKRoom = () => {
                               onChange={e => setDateOfBirth(e.target.value)}
                               required
                             />
-                            {errors.dateOfBirth && <small className="text-danger">{errors.dateOfBirth}</small>}
+                           
                           </div>
                         </div>
                         <div className="col-md-6 col-12">
@@ -409,7 +233,7 @@ const DKRoom = () => {
                               onChange={e => setStudentIdentification(e.target.value)}
                               required
                             />
-                            {errors.studentIdentification && <small className="text-danger">{errors.studentIdentification}</small>}
+                            
                             </div>
                         </div>
                         <div className="col-md-6 col-12">
@@ -423,7 +247,7 @@ const DKRoom = () => {
                               onChange={e => setStudentAddress(e.target.value)}
                               required
                             />
-                            {errors.studentAddress && <small className="text-danger">{errors.studentAddress}</small>}
+                            
                             </div>
                         </div>
                         <div className="col-md-6 col-12">
@@ -437,7 +261,7 @@ const DKRoom = () => {
                               onChange={e => setPhoneNumber(e.target.value)}
                               required
                             />
-                            {errors.phoneNumber && <small className="text-danger">{errors.phoneNumber}</small>}
+                            
                             </div>
                         </div>
                         <div className="col-md-6 col-12">
@@ -451,7 +275,7 @@ const DKRoom = () => {
                               onChange={e => setRelativesPhone(e.target.value)}
                               required
                             />
-                            {errors.relativesPhone && <small className="text-danger">{errors.relativesPhone}</small>}
+                           
                             </div>
                         </div>
                         <div className="col-md-6 col-12">
@@ -465,7 +289,7 @@ const DKRoom = () => {
                               onChange={e => setStudentEmail(e.target.value)}
                               required
                             />
-                            {errors.studentEmail && <small className="text-danger">{errors.studentEmail}</small>}
+                           
                             </div>
                         </div>
                         
@@ -481,7 +305,7 @@ const DKRoom = () => {
   <option value="0">Nữ</option>
   <option value="1">Nam</option>
 </select>
-                            {errors.studentGender && <small className="text-danger">{errors.studentGender}</small>}
+                            
                             </div>
                         
                         <div className="col-md-6 col-12 mt-1">
@@ -547,22 +371,7 @@ const DKRoom = () => {
         <option value="Sán Dìu">Sán Dìu</option>
         <option value="Pupeo">Pupeo</option>
         </select>
-                            {errors.ethnicity && <small className="text-danger">{errors.ethnicity}</small>}
-                            </div>
-                          
-                          <div className="col-md-6 col-12 mt-1">
-                            <label className='fw-bold'>Trạng thái</label>
-                            <select 
-                              className="form-select" 
-                              value={studentStatus}
-                              onChange={e => setStudentStatus(e.target.value)}
-                              required
-                            >
-                              <option value="" disabled>Vui lòng chọn trạng thái</option>
-                              <option value="1">Không còn học</option>
-                              <option value="2">Còn học</option>
-                            </select>
-                            {errors.studentStatus && <small className="text-danger">{errors.studentStatus}</small>}
+                           
                             </div>
                           
                           <div className="col-md-6 col-12 mt-1">
@@ -581,17 +390,14 @@ const DKRoom = () => {
                             </select>
                             {errors.studentPriority && <small className="text-danger">{errors.studentPriority}</small>}
                             </div>
-                          <div className="col-12 d-flex justify-content-end mt-3">
-                            <button 
-                              type="submit"
-                              className="btn btn-primary me-2"
-                              onClick={saveOrUpdateStudent}
-                            >
-                              Lưu
-                            </button>
+                          <div className="col-12 d-flex justify-content-end mt-5 ">
+                          <button className='btn btn-success' onClick={handlePayment} disabled={polling}>
+            Đăng ký và Thanh toán
+          </button>
+          <div className='m-2'></div>
                             <button 
                               type="reset" 
-                              className="btn btn-light" 
+                              className="btn btn-danger" 
                               onClick={() => {
                                 setStudentId('');
                                 setFullname('');

@@ -45,6 +45,9 @@ import DKRoom from './Component/user/PageForStudent/DKRoom.jsx';
 import Bill from './Component/admin/bill/Bill.jsx';
 import RequestSTs from './Component/user/PageForStudent/request/RequestSTs.jsx';
 import RequestST from './Component/user/PageForStudent/request/RequestST.jsx';
+import ContractSTs from './Component/user/PageForStudent/contract/ContractSTs.jsx';
+import ContractST from './Component/user/PageForStudent/contract/ContractST.jsx';
+import Pays from './Component/user/PageForStudent/pays/Pays.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -107,6 +110,11 @@ function App() {
         <Route path='/requests' element={<RequestSTs/>}/>
         <Route path='/add-request' element={<RequestST/>}/>
         <Route path='/update-request/:requirementId' element={<RequestST/>}/>
+
+        <Route path='/contracts' element={<ContractSTs/>}/>
+        <Route path='/detail-contract/:contractId' element={<ContractST/>}/>
+
+        <Route path='/pays' element={<Pays/>}/>
 
       </Routes>
     </Router>

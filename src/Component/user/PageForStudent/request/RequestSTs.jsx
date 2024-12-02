@@ -174,7 +174,7 @@ const RequestSTs = () => {
               <ul className="pagination justify-content-center">
                 {/* Previous Button */}
                 <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`} onClick={() => currentPage > 1 && paginate(currentPage - 1)}>
-                  <a className="page-link" href="#" tabindex="-1"><i className="bi bi-chevron-left"></i></a>
+                  <a className="page-link" href="#" tabIndex="-1"><i className="bi bi-chevron-left"></i></a>
                 </li>
 
                 {/* Page Numbers */}
