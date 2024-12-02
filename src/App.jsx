@@ -42,6 +42,7 @@ import EAccount from './Component/admin/account/eAcount/EAcount.jsx';
 import EAccounts from './Component/admin/account/eAcount/EAcounts.jsx';
 import MainStudentPage from './Component/user/MainStudentPage.jsx';
 import DKRoom from './Component/user/PageForStudent/DKRoom.jsx';
+import Bill from './Component/admin/bill/Bill.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -89,8 +90,11 @@ function App() {
 
         <Route path='/admin/requests' element={<ProtectedRoute requiredRole="ROOT"><Requests/></ProtectedRoute>}/>
         <Route path='/admin/add-request' element={<ProtectedRoute requiredRole="ROOT"><RequestUC/></ProtectedRoute>}/>
+        <Route path='/admin/update-request/:requirementId' element={<ProtectedRoute requiredRole="ROOT"><RequestUC/></ProtectedRoute>}/>
 
         <Route path='/admin/bills' element={<ProtectedRoute requiredRole="ROOT"><Bills/></ProtectedRoute>}/>
+        <Route path='/admin/add-bill' element={<ProtectedRoute requiredRole="ROOT"><Bill/></ProtectedRoute>}/>
+        <Route path='/admin/update-bill/:billId' element={<ProtectedRoute requiredRole="ROOT"><Bill/></ProtectedRoute>}/>
 
         <Route path='/login' element={<Login/>}/>
 

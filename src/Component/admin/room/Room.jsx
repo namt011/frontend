@@ -30,7 +30,6 @@ const Room = () => {
           const room = response.data.data;
           setRoomName(room.roomName);
           setRoomDes(room.roomDes);
-          setRoomNumber(room.roomNumber);
           setRoomType(room.roomType.roomTypeId);
           setRoomStatus(room.roomStatus);
           setRoomGender(room.roomGender);
@@ -129,47 +128,24 @@ const Room = () => {
     // Append building name to roomName only when creating a new room
     const fullRoomName = roomId ? roomName : `${roomName}${buildingName}`;
   
-    // Prepare the room data
     const roomData = {
       roomName: fullRoomName,  // Use fullRoomName for new rooms only
       roomDes,
       roomType: { roomTypeId: roomType },
       floor: { floorId: floor },
-      roomNumber: 0, // Default value, will be updated later
-      roomStatus,
-      roomGender: roomGender,
+      roomGender: selectedFloor.building.buildingGender,
+      roomStatus: roomStatus
     };
   
-    // Fetch students in the room to calculate the current roomNumber
     if (roomId) {
-      // If updating an existing room, fetch the current list of students in the room
-      listStudent2()
-        .then((res) => {
-          if (Array.isArray(res.data.data)) {
-            // Filter students who are currently in this room
-            const studentsInRoom = res.data.data.filter(student => student.roomDTO && student.roomDTO.roomId === roomId);
-            const updatedRoomData = {
-              ...roomData,
-              roomNumber: studentsInRoom.length,  // Set roomNumber to the number of students in the room
-            };
-  
-            // Call updateRoomService with the updated room data
-            updateRoomService(roomId, updatedRoomData)
-              .then((response) => {
-                navigate('/admin/rooms');
-              })
-              .catch((error) => {
-                console.error(error);
-              });
-          } else {
-            console.error('Expected an array but got:', res.data);
-          }
+      updateRoomService(roomId, roomData)
+        .then((response) => {
+          navigate('/admin/rooms');
         })
         .catch((error) => {
-          console.error('Error fetching students:', error);
+          console.error(error);
         });
     } else {
-      // If creating a new room, no students yet, so roomNumber remains 0
       createRoomService(roomData)
         .then((response) => {
           navigate('/admin/rooms');
@@ -226,18 +202,6 @@ const Room = () => {
                             </div>
                           </div>
                           <div className='col-md-6 col-12'>
-                            <div className='form-group'>
-                              <label htmlFor='roomNumber'>Số người tối đa</label>
-                              <input
-                                type='number'
-                                className='form-control'
-                                id='roomNumber'
-                                value={roomNumber}
-                                onChange={(e) => setRoomNumber(e.target.value)}
-                              />
-                            </div>
-                          </div>
-                          <div className='col-md-6 col-12'>
                             <label htmlFor='roomType' className='fw-bold'>Loại phòng</label>
                             <select
                               className='form-select'
@@ -267,19 +231,7 @@ const Room = () => {
                               <option value='3'>Bảo trì</option>
                             </select>
                           </div>
-                          <div className='col-md-6 col-12'>
-                            <label htmlFor='roomGender'className='fw-bold mt-2'>Giới tính</label>
-                            <select
-                              className='form-select'
-                              id='roomGender'
-                              value={roomGender ? '1' : '0'}
-                              onChange={e => setRoomGender(e.target.value === '1')}
-                            >
-                              <option value='' disabled>Chọn giới tính</option>
-                              <option value='1'>Nam</option>
-                              <option value='0'>Nữ</option>
-                            </select>
-                          </div>
+                          
                           <div className='col-md-6 col-12'>
                             <label htmlFor='floor' className='fw-bold mt-2'>Vị trí</label>
                             <select

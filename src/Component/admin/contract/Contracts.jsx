@@ -32,7 +32,8 @@ const Contracts = () => {
                 },
                 startDate: contract.startDate,
                 endDate: contract.endDate,
-                staff: contract.staff
+                staff: contract.staff,
+                contractStatus : contract.contractStatus
               }));
               setContracts(processedData);
             } else {
@@ -63,11 +64,13 @@ const Contracts = () => {
       deleteContractService(contractId)
         .then((response) => {
           // Refresh the contract list after deleting
+          console.log(response)
           setContracts(contracts.filter(contract => contract.contractId !== contractId));
         })
         .catch((error) => {
           console.error(error);
           setError("Không thể xóa hợp đồng.");
+          alert('Không thể xóa hợp đồng.')
         });
     }
   };
@@ -112,7 +115,6 @@ const Contracts = () => {
                   </div>
                   <div className="card-content">
                     <div className="card-body d-flex">
-                      <div><a href="/admin/add-contract" className="btn btn-success">Thêm mới</a></div>
                       <div className="m-2"></div>
                       <form>
                         <div className="input-group ml-3">
@@ -129,11 +131,12 @@ const Contracts = () => {
                       <table className="table table-hover">
                         <thead>
                           <tr>
+                            <th>STT</th>
                             <th>Mã sinh viên</th>
                             <th>Tên sinh viên</th>
                             <th>Ngày bắt đầu</th>
                             <th>Ngày kết thúc</th>
-                            <th>Nhân viên phụ trách</th>
+                            <th>Trạng thái</th>
                             <th>Hành động</th>
                           </tr>
                         </thead>
@@ -143,13 +146,14 @@ const Contracts = () => {
                           ) : error ? (
                             <tr><td colSpan="6">Error: {error}</td></tr>
                           ) : contracts.length > 0 ? (
-                            contracts.map(contract => (
+                            contracts.map((contract,index) => (
                               <tr key={contract.contractId}>
+                                <td>{index +1}</td>
                                 <td>{contract.student?.studentId}</td>
                                 <td>{contract.student?.fullname}</td>
                                 <td>{formatDate(contract.startDate)}</td>
                                 <td>{formatDate(contract.endDate)}</td>
-                                <td>{contract.staff?.fullname}</td>
+                                <td>{contract.contractStatus}</td>
                                 <td>
                                   <div className="buttons">
                                     <a href="" className="btn btn-primary rounded-pill mb-0 mr-0" onClick={() => updateContract(contract.contractId)}>Sửa</a>

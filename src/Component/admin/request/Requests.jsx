@@ -25,6 +25,23 @@ import React, {
      window.addEventListener('resize', handleResize);
      return () => window.removeEventListener('resize', handleResize);
    }, []);
+   const formatDateWithTime = (date) => {
+    const d = new Date(date);
+    
+    // Chuyển sang múi giờ UTC+7
+    const options = { 
+      timeZone: 'Asia/Ho_Chi_Minh', // Múi giờ UTC+7
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false // 24 giờ
+    };
+    
+    return new Intl.DateTimeFormat('vi-VN', options).format(d);
+  };
  
    function getAllRequirements() {
      listRequirement().then((response) => {
@@ -72,7 +89,7 @@ import React, {
                    </div>
                    <div className="card-content">
                      <div className="card-body d-flex">
-                       <div><a href="/add-request" className="btn btn-success">Thêm mới</a></div>
+                       <div><a href="/admin/add-request" className="btn btn-success">Thêm mới</a></div>
                        <div className='m-2'></div>
                        <form>
                          <div className="input-group ml-3">
@@ -94,6 +111,7 @@ import React, {
                              <th>Nội dung yêu cầu</th>
                              <th>Người yêu cầu</th>
                              <th>Ngày gửi</th>
+                             <th>Cập nhật </th>
                              <th>Trạng thái</th>
                              <th>Hành động</th>
                            </tr>
@@ -105,7 +123,8 @@ import React, {
                                <td>{request.requirementName}</td>
                                <td>{request.requirementDes}</td>
                                <td>{request.student.fullname}</td>
-                               <td>{request.createAt}</td>
+                               <td>{formatDateWithTime(request.createAt)}</td>
+<td>{formatDateWithTime(request.updateAt)}</td>
                                <td>{request.status}</td>
                                <td>
                                  <div className="buttons">

@@ -10,6 +10,8 @@ const Roomtype = () => {
   const [roomTypeName, setRoomTypeName] = useState('');
   const [roomTypeDes, setRoomTypeDes] = useState('');
   const [roomTypePrice, setRoomTypePrice] = useState(0);
+  const [roomNumber, setRoomNumber] = useState(0);
+  const [roomTypeDeposit, setRoomTypeDeposit] = useState(0);
   
   const { roomTypeId } = useParams();
   const navigator = useNavigate();
@@ -37,7 +39,7 @@ const Roomtype = () => {
   function saveOrUpdateRoomType(e) {
     e.preventDefault();
 
-    const roomType = { roomTypeName, roomTypeDes, roomTypePrice };
+    const roomType = { roomTypeName, roomTypeDes, roomTypePrice, roomNumber, roomTypeDeposit };
     console.log(roomType);
 
     if (roomTypeId) {
@@ -81,21 +83,32 @@ const Roomtype = () => {
                   <div className="card-content">
                     <div className="card-body">
                       <form className="form">
-                        <div className="col-md-5">
+                        <div className='row'>
+                        <div className="col-md-4 col-12">
                           <label htmlFor="roomTypeName" className="form-label">Tên loại phòng</label>
                           <input type="text" className="form-control" id="roomTypeName" name='roomTypeName' value={roomTypeName} onChange={e => setRoomTypeName(e.target.value)} required />
                         </div>
-                        <div className="col-md-16">
-                          <label htmlFor="roomTypeDes" className="form-label">Mô tả</label>
-                          <input type="text" className="form-control" id="roomTypeDes" name='roomTypeDes' value={roomTypeDes} onChange={e => setRoomTypeDes(e.target.value)} required />
+                        <div className="col-md-4 col-12">
+                          <label htmlFor="roomNumber" className="form-label">Số người ở tối đa</label>
+                          <input type="number" className="form-control" id="roomNumber" name='roomNumber' value={roomNumber} onChange={e => setRoomNumber(e.target.value)} required />
                         </div>
-                        <div className="col-md-16">
+                        <div className="col-md-2 col-12">
                           <label htmlFor="roomTypePrice" className="form-label">Tiền</label>
                           <input type="number" className="form-control" id="roomTypePrice" name='roomTypePrice' value={roomTypePrice} onChange={e => setRoomTypePrice(e.target.value)} required />
                         </div>
+                        <div className="col-md-2 col-12">
+                          <label htmlFor="roomTypeDeposit" className="form-label">Tiền cọc</label>
+                          <input type="number" className="form-control" id="roomTypeDeposit" name='roomTypeDeposit' value={roomTypeDeposit} onChange={e => setRoomTypeDeposit(e.target.value)} required />
+                        </div>
+                        <div className="col-md-12 col-12">
+                          <label htmlFor="roomTypeDes" className="form-label">Mô tả</label>
+                          <input placeholder="Các dịch vụ mà loại phòng này cung cấp" type="text" className="form-control" id="roomTypeDes" name='roomTypeDes' value={roomTypeDes} onChange={e => setRoomTypeDes(e.target.value)} required />
+                        </div>
+                        
                         <div className="col-12 d-flex justify-content-end mt-3">
                           <button type="submit" className="btn btn-primary me-1 mb-1" onClick={saveOrUpdateRoomType}>Submit</button>
                           <button type="reset" className="btn btn-light-secondary me-1 mb-1">Reset</button>
+                        </div>
                         </div>
                       </form>
                     </div>

@@ -193,7 +193,7 @@ const Login = () => {
                       <div className="col-12">
                         <p className="m-0 text-secondary text-center">
                           Don't have an account?{' '}
-                          <a href="#!" className="link-primary text-decoration-none">
+                          <a href="/dangkiphong" className="link-primary text-decoration-none">
                             Sign up
                           </a>
                         </p>

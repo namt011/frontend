@@ -86,6 +86,7 @@ const RoomTypes = () => {
                                  <th>STT</th>
                                     <th>Tên loại phòng  </th>
                                     <th>Mô tả </th>
+                                    <th>Số người ở tối đa</th>
                                     <th>Tiền </th>
                                     <th>Hành động</th>
                                  </tr>
@@ -97,6 +98,7 @@ const RoomTypes = () => {
                                           <td>{index +1}</td>
                                           <td>{roomtype.roomTypeName}</td>
                                           <td>{roomtype.roomTypeDes}</td>
+                                          <td>{roomtype.roomNumber}</td>
                                           <td>{roomtype.roomTypePrice}</td>
                                           <td>
                                        <div className="buttons">

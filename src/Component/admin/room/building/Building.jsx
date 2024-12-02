@@ -9,6 +9,7 @@ const Building = () => {
     const [isActive, setIsActive] = useState(window.innerWidth >= 1200);
     const [buildingName, setBuildingName]=useState('');
     const [buildingDescription, setBuildingDes]=useState('');
+    const [buildingGender, setBuildingGender]=useState('');
   
     const {buildingId}= useParams();
     const navigator = useNavigate();
@@ -18,6 +19,7 @@ const Building = () => {
         get1BuildingService(buildingId).then((response)=>{
           setBuildingName(response.data.data.buildingName);
             setBuildingDes(response.data.data.buildingDescription);
+            setBuildingGender(response.data.data.buildingGender)
         }).catch(error =>{
           console.error(error);
         })
@@ -35,7 +37,7 @@ const Building = () => {
   function saveOrUpdateBuilding(e){
     e.preventDefault();
 
-    const building = {buildingName,buildingDescription}
+    const building = {buildingName,buildingDescription,buildingGender: buildingGender}
     console.log(building);
     if(buildingId){
       console.log(building);
@@ -83,13 +85,26 @@ const Building = () => {
                      <div className="card-content">
                         <div className="card-body">
                            <form className="form">
-                              <div className="col-md-5">
+                              <div className="col-md-6">
                                  <label htmlFor="validationCustom02" className="form-label">Tên tòa nhà</label>
                                  <input type="text" className="form-control" id="validationCustom02" name='buildingname' value={buildingName} onChange={e => setBuildingName(e.target.value)} required/>
                                  <div className="valid-feedback">
                                     Looks good!
                                  </div>
                               </div>
+                              <div className='col-md-6'>
+                            <label htmlFor='roomGender'className='fw-bold mt-2'>Giới tính</label>
+                            <select
+                              className='form-select'
+                              id='roomGender'
+                              value={buildingGender ? '1' : '0'}
+                              onChange={e => setBuildingGender(e.target.value === '1')}
+                            >
+                              <option value='' disabled>Chọn giới tính</option>
+                              <option value='1'>Nam</option>
+                              <option value='0'>Nữ</option>
+                            </select>
+                          </div>
                               <div className="col-md-16">
                                  <label htmlFor="validationCustom02" className="form-label">Mô tả</label>
                                  <input type="text" className="form-control" id="validationCustom02" name='buildingdes' value={buildingDescription} onChange={e => setBuildingDes(e.target.value)} required/>
