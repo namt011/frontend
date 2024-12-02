@@ -40,10 +40,10 @@ const SideBarStudent = ({ isActive, onToggleSidebar }) => {
   };
 
   const sidebarItems = [
-    { title: 'Đăng ký phòng', icon: 'bi bi-house', link: '/room-registration' },
-    { title: 'Yêu cầu khiếu nại', icon: 'bi bi-exclamation-circle', link: '/request' },
+    { title: 'Đăng ký phòng', icon: 'bi bi-house', link: '/dangkiphong' },
+    { title: 'Yêu cầu khiếu nại', icon: 'bi bi-exclamation-circle', link: '/requests' },
     { title: 'Hợp đồng', icon: 'bi bi-file-text', link: '/contract' },
-    { title: 'Thanh toán', icon: 'bi bi-wallet2', link: '/pay' },
+    { title: 'Thanh toán', icon: 'bi bi-wallet2', link: '/pays' },
     { title: 'Tài khoản', icon: 'bi bi-person', link: '/my-account' }
   ];
 

@@ -43,6 +43,8 @@ import EAccounts from './Component/admin/account/eAcount/EAcounts.jsx';
 import MainStudentPage from './Component/user/MainStudentPage.jsx';
 import DKRoom from './Component/user/PageForStudent/DKRoom.jsx';
 import Bill from './Component/admin/bill/Bill.jsx';
+import RequestSTs from './Component/user/PageForStudent/request/RequestSTs.jsx';
+import RequestST from './Component/user/PageForStudent/request/RequestST.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -101,6 +103,11 @@ function App() {
         <Route path='/dangkiphong' element={<MainStudentPage/>}/>
 
         <Route path='/dangkiphong-studentInfo' element={<DKRoom/>}/>
+
+        <Route path='/requests' element={<RequestSTs/>}/>
+        <Route path='/add-request' element={<RequestST/>}/>
+        <Route path='/update-request/:requirementId' element={<RequestST/>}/>
+
       </Routes>
     </Router>
   )

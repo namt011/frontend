@@ -20,6 +20,7 @@ const Room = () => {
   const [floors, setFloors] = useState([]); // Now includes floor and building data
   const [roomTypes, setRoomTypes] = useState([]);
   const [students, setStudents] = useState([]); // State to store students in the room
+  const [roomValid, setRoomValid] = useState(true);
   const { roomId } = useParams();
   const navigate = useNavigate();
 
@@ -34,6 +35,7 @@ const Room = () => {
           setRoomStatus(room.roomStatus);
           setRoomGender(room.roomGender);
           setFloor(room.floor.floorId);
+          setRoomValid(room.roomValid); 
 
           // Fetch students for the room when updating
           listStudent2()
@@ -134,7 +136,8 @@ const Room = () => {
       roomType: { roomTypeId: roomType },
       floor: { floorId: floor },
       roomGender: selectedFloor.building.buildingGender,
-      roomStatus: roomStatus
+      roomStatus: roomStatus,
+      roomValid: roomId ? undefined : true
     };
   
     if (roomId) {

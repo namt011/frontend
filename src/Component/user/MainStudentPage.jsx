@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate để chuyển hướng
 import HeaderStudent from './HeaderStudent';
 import SideBarStudent from './SideBarStudent';
-import { listBuilding, listRoom } from '../service/RoomService';
+import { listRoomType } from '../service/RoomService'; // Giữ nguyên import listRoomType
 
 const MainStudentPage = () => {
-    const [location, setLocation] = useState('');  // Tòa nhà hiện tại
-    const [roomTypes, setRoomTypes] = useState([]);  // Lưu trữ các loại phòng của tòa hiện tại
-    const [buildings, setBuildings] = useState([]);  // Lưu trữ danh sách các tòa nhà
-    const [allRooms, setAllRooms] = useState([]);  // Lưu trữ tất cả các phòng
+    const [roomTypes, setRoomTypes] = useState([]);  // Lưu trữ các loại phòng
     const [isActive, setIsActive] = useState(window.innerWidth >= 1200);
     const navigate = useNavigate(); // Hook chuyển hướng
 
@@ -25,66 +22,20 @@ const MainStudentPage = () => {
         setIsActive(prev => !prev);
     }; 
 
-    // Lấy danh sách tòa nhà khi component được load
+    // Lấy danh sách các loại phòng khi component được load
     useEffect(() => {
-        const fetchBuildings = async () => {
+        const fetchRoomTypes = async () => {
             try {
-                const response = await listBuilding();
+                const response = await listRoomType();  // Gọi API để lấy listRoomType
                 if (response && response.data.data) {
-                    setBuildings(response.data.data);
-                    if (response.data.data.length > 0) {
-                        setLocation(response.data.data[0].buildingId);
-                    }
+                    setRoomTypes(response.data.data);  // Lưu trữ danh sách các loại phòng
                 }
             } catch (error) {
-                console.error("Error fetching buildings:", error);
+                console.error("Error fetching room types:", error);
             }
         };
-        fetchBuildings();
-    }, []); 
-
-    // Lấy tất cả danh sách phòng khi component được load
-    useEffect(() => {
-        const fetchAllRooms = async () => {
-            try {
-                const response = await listRoom();
-                if (response && response.data.data) {
-                    setAllRooms(response.data.data);
-                }
-            } catch (error) {
-                console.error("Error fetching all rooms:", error);
-            }
-        };
-        fetchAllRooms();
-    }, []); 
-
-    // Khi location (tòa nhà) thay đổi, lọc phòng theo tòa
-    useEffect(() => {
-        if (!location) return;
-
-        const filteredRooms = allRooms.filter(room => room.floor.building.buildingId === location);
-
-        const roomTypes = filteredRooms.reduce((acc, room) => {
-            const roomType = room.roomType;
-            if (!acc[roomType.roomTypeId]) {
-                acc[roomType.roomTypeId] = {
-                    roomTypeId: roomType.roomTypeId,
-                    roomTypeName: roomType.roomTypeName,
-                    roomTypeDes: roomType.roomTypeDes,
-                    roomTypePrice: roomType.roomTypePrice,
-                    roomTypeDeposit: roomType.roomTypeDeposit,
-                    roomNumber: roomType.roomNumber
-                };
-            }
-            return acc;
-        }, {});
-
-        setRoomTypes(Object.values(roomTypes));
-    }, [location, allRooms]); 
-
-    const handleLocationChange = (event) => {
-        setLocation(event.target.value);
-    };
+        fetchRoomTypes();
+    }, []);
 
     // Hàm xử lý khi click "Đăng ký"
     const handleRegisterClick = (roomTypeId) => {
@@ -101,28 +52,19 @@ const MainStudentPage = () => {
                 <SideBarStudent isActive={isActive} onToggleSidebar={toggleSidebar} />
                 <div id='main-content'>
                     <div className="row">
-                        <main className="col-lg-9 col-md-8 col-sm-12 p-4">
+                        <main className="p-4">
                             <div className="d-flex justify-content-between align-items-center mb-4">
                                 <h5>Đăng ký phòng</h5>
+                                <p>Chọn loại phòng muốn đăng ký</p>
                             </div>
 
-                            <div className="mb-3">
-                                <label htmlFor="locationSelect" className="form-label">Vị trí tòa</label>
-                                <select className="form-select" id="locationSelect" value={location} onChange={handleLocationChange}>
-                                    {buildings.map((building) => (
-                                        <option key={building.buildingId} value={building.buildingId}>
-                                            {building.buildingName}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div id="roomList" className="row g-3">
+                            {/* Không cần dropdown chọn tòa nhà nữa */}
+                            <div id="roomList" className="row">
                                 {roomTypes.length === 0 ? (
                                     <p>Không có loại phòng nào.</p>
                                 ) : (
                                     roomTypes.map((roomType) => (
-                                        <div className="col-md-4" key={roomType.roomTypeId}>
+                                        <div className="col-md-3 col-12" key={roomType.roomTypeId}>
                                             <div className="card">
                                                 <div className="card-body">
                                                     <h5 className="card-title">{roomType.roomTypeName}</h5>

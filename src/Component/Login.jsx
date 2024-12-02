@@ -16,6 +16,7 @@ const Login = () => {
     localStorage.setItem('accessToken', null);
     localStorage.setItem('refreshToken', null);
     localStorage.setItem('role', null);
+    localStorage.setItem('ID', null);
   }, []);
 
   const navigate = useNavigate();
@@ -33,9 +34,10 @@ const Login = () => {
   };
 
   // Lưu trữ accessToken và refreshToken vào localStorage sau khi đăng nhập thành công
-  const saveUserSession = (accessToken, refreshToken) => {
+  const saveUserSession = (accessToken, refreshToken,data) => {
     localStorage.setItem('accessToken', accessToken); // Lưu accessToken vào localStorage
-    localStorage.setItem('refreshToken', refreshToken); // Lưu refreshToken vào localStorage
+    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('ID', data); // Lưu refreshToken vào localStorage
   };
 
   // Gọi API /user/getAll và lấy roleName từ dữ liệu
@@ -89,9 +91,9 @@ const Login = () => {
       console.log(response); // Kiểm tra xem phản hồi có đúng không
 
       if (response.status === 200) { // Kiểm tra status code thay vì `response.code`
-        const { accessToken, refreshToken } = response.data;
+        const { accessToken, refreshToken,data } = response.data;
 
-        saveUserSession(accessToken, refreshToken); // Lưu accessToken vào localStorage
+        saveUserSession(accessToken, refreshToken,data); // Lưu accessToken vào localStorage
 
         // Sau khi lưu accessToken, gọi API lấy role
         await fetchUserRole(); // Lấy roleName và điều hướng sau khi gọi API thành công
