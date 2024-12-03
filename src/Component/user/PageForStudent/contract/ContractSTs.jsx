@@ -33,7 +33,8 @@ const ContractSTs = () => {
                 contractId: contract.contractId,
                 student: {
                   studentId: contract.student?.studentId,
-                  fullname: contract.student?.fullname
+                  fullname: contract.student?.fullname, 
+                  roomName: contract.student?.roomName
                 },
                 startDate: contract.startDate,
                 endDate: contract.endDate,
@@ -179,8 +180,10 @@ const ContractSTs = () => {
                                 <th>STT</th>
                                 <th>Mã sinh viên</th>
                                 <th>Tên sinh viên</th>
+                                <th>Phòng</th>
                                 <th>Ngày bắt đầu</th>
                                 <th>Ngày kết thúc</th>
+                                <th>Trạng thái</th>
                                 <th>Hành động</th>
                               </tr>
                             </thead>
@@ -190,8 +193,10 @@ const ContractSTs = () => {
                                   <td>{index + 1}</td>
                                   <td>{contract.student?.studentId}</td>
                                   <td>{contract.student?.fullname}</td>
+                                  <td>{contract.student?.roomName}</td>
                                   <td>{formatDate(contract.startDate)}</td>
                                   <td>{formatDate(contract.endDate)}</td>
+                                  <td>{contract.contractStatus}</td>
                                   <td>
                                     <div className="buttons">
                                       <button className="btn btn-primary" onClick={() => updateContract(contract.contractId)}>Chi tiết </button>

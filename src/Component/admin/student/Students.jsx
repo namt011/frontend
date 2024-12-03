@@ -138,7 +138,7 @@ const Students = () => {
                             <th>Số điện thoại</th>
                             <th>Số điện thoại người thân</th>
                             <th>Email</th>
-                            <th>Ưu tiên</th>
+                            <th>Phòng</th>
                             <th>Hành động</th>
                           </tr>
                         </thead>
@@ -154,7 +154,7 @@ const Students = () => {
                               <td>{student.phoneNumber}</td>
                               <td>{student.relativesPhone}</td>
                               <td>{student.studentEmail}</td>
-                              <td>{student.studentPriority}</td>
+                              <td>{student.roomName}</td>
                               <td>
                                 <div className="buttons">
                                   <button className="btn btn-primary rounded-pill mb-0 mr-0" onClick={() => updateStudent(student.studentId)}>Sửa</button>

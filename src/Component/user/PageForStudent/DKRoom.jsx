@@ -63,14 +63,55 @@ const DKRoom = () => {
     setIsActive(prev => !prev);
   };
 
+  const checkEmailExists = async (email) => {
+    try {
+      const response = await axiosInstance.post(`/auth/checkEmail/${email}`);
+      return response.data.data; // Trả về true nếu đã tồn tại
+    } catch (error) {
+      console.error("Error checking email:", error);
+      return false;
+    }
+  };
+  
+  const checkStudentIdExists = async (studentId) => {
+    try {
+      const response = await axiosInstance.post(`/auth/checkStudentId/${studentId}`);
+      return response.data.data; // Trả về true nếu đã tồn tại
+    } catch (error) {
+      console.error("Error checking studentId:", error);
+      return false;
+    }
+  };
+  
+  const checkIdentificationExists = async (identification) => {
+    try {
+      const response = await axiosInstance.post(`/auth/checkStudentIdentification/${identification}`);
+      return response.data.data; // Trả về true nếu đã tồn tại
+    } catch (error) {
+      console.error("Error checking studentIdentification:", error);
+      return false;
+    }
+  };
+  const checkPhoneNumber = async(phoneNumber)=>{
+    try{
+      const response = await axiosInstance.post(`/auth/checkPhone/${phoneNumber}`);
+      return response.data.data;
+
+    }catch(error){
+      console.error("Error checking phoneNumber:", error);
+      return false;
+    }
+  }
+  
+
 
   // Hàm validate form
-  const validateForm = () => {
+  const validateForm = async () => {
     const errors = {};
     const classRegex = /^[A-Za-z0-9]+-[0-9]{2}$/;
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
+  
+    // Kiểm tra các trường nhập liệu đồng bộ
     if (!studentId) errors.studentId = "Mã sinh viên không được để trống";
     if (!fullname) errors.fullname = "Họ và tên không được để trống";
     if (!studentClass) {
@@ -91,18 +132,34 @@ const DKRoom = () => {
     if (studentGender === undefined) errors.studentGender = "Giới tính không được để trống";
     if (!ethnicity) errors.ethnicity = "Dân tộc không được để trống";
     if (!studentPriority) errors.studentPriority = "Ưu tiên không được để trống";
+  
+    // Kiểm tra bất đồng bộ
+    
+    const studentIdExists = await checkStudentIdExists(studentId);
+    const identificationExists = await checkIdentificationExists(studentIdentification);
+    const phoneNumberExists = await checkPhoneNumber(phoneNumber);
+    const emailExists = await checkEmailExists(studentEmail);
+  
+   
+    if (studentIdExists) errors.studentId = "Mã sinh viên đã tồn tại";
+    if (identificationExists) errors.studentIdentification = "Căn cước công dân đã tồn tại";
+    if (phoneNumberExists) errors.studentEmail = "Số điện thoại đã tồn tại";
+    if (emailExists) errors.studentEmail = "Email đã tồn tại";
 
     setErrors(errors);
     return Object.keys(errors).length === 0;
   };
+  
 
-  const handlePayment = async () => {
+  const handlePayment = async (e) => {
+    e.preventDefault();
     if (polling) return;
     
-    if (!validateForm()) {
-      alert("Vui lòng điền đầy đủ thông tin!");
-      return;
-    }
+    const isValid = await validateForm();
+  if (!isValid) {
+    alert("Vui lòng điền đầy đủ thông tin hoặc sửa các lỗi đã có!");
+    return;
+  }
 
     setPolling(true);
 

@@ -97,8 +97,8 @@ const Building = () => {
                             <select
                               className='form-select'
                               id='roomGender'
-                              value={buildingGender ? '1' : '0'}
-                              onChange={e => setBuildingGender(e.target.value === '1')}
+                              value={buildingGender}
+                              onChange={e => setBuildingGender(Number(e.target.value))}
                             >
                               <option value='' disabled>Chọn giới tính</option>
                               <option value='1'>Nam</option>

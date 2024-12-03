@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axiosInstance from './service/axiosInstance ';
+import { useNavigate } from 'react-router-dom';
 
 const FogotPassword = () => {
   const [email, setEmail] = useState('');
@@ -10,6 +11,8 @@ const FogotPassword = () => {
 
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
+
 
   // Handle sending OTP
   const handleSendOtp = async () => {
@@ -50,6 +53,8 @@ const FogotPassword = () => {
       const response = await axiosInstance.post('/user/reset-password', { email, otp, newPassword });
       if (response.status === 200) {
         alert('Mật khẩu đã được đổi thành công');
+        navigate("/login");
+
       }
     } catch (error) {
       console.error(error);
