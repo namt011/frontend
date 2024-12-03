@@ -8,13 +8,13 @@ import axiosInstance from '../../../service/axiosInstance ';
 
 const Pays = () => {
   const [isActive, setIsActive] = useState(window.innerWidth >= 1200);
-  const [bills, setBills] = useState([]);
-  const [filteredBills, setFilteredBills] = useState([]); // Store filtered bills
+  const [bills, setBills] = useState([]); // Lưu tất cả hóa đơn
+  const [filteredBills, setFilteredBills] = useState([]); // Lưu hóa đơn đã lọc theo tìm kiếm
   const [roomId, setRoomId] = useState(null);
   const [polling, setPolling] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const [searchQuery, setSearchQuery] = useState(''); // Tình trạng tìm kiếm theo tên sinh viên thanh toán
   const [currentPage, setCurrentPage] = useState(1);
-  const [billsPerPage] = useState(5); // Set number of bills per page
+  const [billsPerPage] = useState(5); // Số hóa đơn mỗi trang
 
   useEffect(() => {
     const handleResize = () => {
@@ -57,8 +57,8 @@ const Pays = () => {
         const response = await listBill();
         if (response?.data.data) {
           const filteredBills = response.data.data.filter((bill) => bill.roomDTO?.roomId === roomId);
-          setBills(filteredBills);
-          setFilteredBills(filteredBills); // Initialize the filtered bills state
+          setBills(filteredBills); // Lưu tất cả hóa đơn vào bills
+          setFilteredBills(filteredBills); // Lưu hóa đơn đã lọc theo phòng vào filteredBills
         }
       } catch (error) {
         console.error('Error fetching bills:', error);
@@ -76,9 +76,10 @@ const Pays = () => {
   };
   
   useEffect(() => {
-    const filtered = bills.filter((bill) =>
-      bill.studentPay?.fullname.toLowerCase().includes(searchQuery.toLowerCase()) // Filter by student's name
-    );
+    const filtered = bills.filter((bill) => {
+      const studentPayFullname = bill.studentPay?.fullname || ''; // Nếu không có `studentPay`, trả về chuỗi rỗng
+      return studentPayFullname.toLowerCase().includes(searchQuery.toLowerCase());
+    });
     setFilteredBills(filtered);
     setCurrentPage(1); // Reset to the first page when the search changes
   }, [searchQuery, bills]);
@@ -121,7 +122,7 @@ const Pays = () => {
             const billResponse = await listBill();
             if (billResponse?.data.data) {
               const filteredBills = billResponse.data.data.filter((bill) => bill.roomDTO?.roomId === roomId);
-              setBills(filteredBills);
+              setBills(filteredBills); // Update bills
               setFilteredBills(filteredBills); // Update filtered bills
             }
           }
@@ -180,7 +181,7 @@ const Pays = () => {
             <span style={{ color: 'red' }}>Chưa thanh toán</span>
           )}
         </td>
-        <td>{bill.studentPay?.fullname}</td> {/* Added column for student's name */}
+        <td>{bill.studentPay?.fullname}</td>
         <td>
           <button
             className={`btn ${bill.billStatus === "COMPLETE" ? 'btn-secondary' : 'btn-success'}`}

@@ -114,12 +114,19 @@ const SideBarStudent = ({ isActive, onToggleSidebar }) => {
                   )}
                 </li>
               ))}
-              {/* Nút đăng xuất riêng biệt */}
+              {/* Nút đăng nhập hoặc đăng xuất */}
               <li className="sidebar-item">
-                <a href="#" className="sidebar-link" onClick={handleLogout}>
-                  <i className="bi bi-box-arrow-right"></i>
-                  <span>Đăng xuất</span>
-                </a>
+                {role ? (
+                  <a href="#" className="sidebar-link" onClick={handleLogout}>
+                    <i className="bi bi-box-arrow-right"></i>
+                    <span>Đăng xuất</span>
+                  </a>
+                ) : (
+                  <Link to="/login" className="sidebar-link">
+                    <i className="bi bi-box-arrow-in-right"></i>
+                    <span>Đăng nhập</span>
+                  </Link>
+                )}
               </li>
             </ul>
           </div>
