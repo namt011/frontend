@@ -3,22 +3,23 @@ import { listUser } from '../service/UserService';
 import { listStudent } from '../service/StudentService';
 import { useNavigate } from 'react-router-dom';
 
+import avtNu from "../../assets/images/faces/avtNu.jpg";  // Đảm bảo đường dẫn đúng
+import avtNam from "../../assets/images/faces/avtNam.jpg";  // Đảm bảo đường dẫn đúng
+
 const HeaderStudent = ({ onToggleSidebar }) => {
   const [userName, setUserName] = useState('User');
   const [userRole, setUserRole] = useState('User');
+  const [studentGender, setStudentGender] = useState(""); // Thêm trường để lưu gender
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Lấy accessToken từ localStorage
     const accessToken = localStorage.getItem('accessToken');
   
-    // Nếu không có accessToken, không thực hiện việc gọi API
     if (!accessToken) {
       console.log('No access token found, skipping data fetch.');
-      return; // Dừng lại nếu không có accessToken
+      return;
     }
   
-    // Tìm người dùng dựa trên accessToken
     const findUserByAccessToken = (users) => {
       let userList = [];
       if (Array.isArray(users)) {
@@ -42,7 +43,6 @@ const HeaderStudent = ({ onToggleSidebar }) => {
   
     const fetchUserData = async () => {
       try {
-        // Gọi API để lấy dữ liệu người dùng và sinh viên
         const userResponse = await listUser();
         const studentResponse = await listStudent();
   
@@ -64,6 +64,8 @@ const HeaderStudent = ({ onToggleSidebar }) => {
             if (foundStudent) {
               setUserName(foundStudent.fullname);
               setUserRole(foundUser.role?.roleName || 'User');
+              setStudentGender(foundStudent.studentGender); 
+              console.log(studentGender)
             }
           } else {
             console.error('Student list is not valid:', studentList);
@@ -80,16 +82,14 @@ const HeaderStudent = ({ onToggleSidebar }) => {
     };
   
     fetchUserData(); // Gọi hàm fetchUserData nếu có accessToken
-  
   }, []); // Chạy useEffect một lần khi component được mount
-  
 
-    const handleLogout = () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('role');
-        navigate('/login');
-      };
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('role');
+    navigate('/login');
+  };
 
   return (
     <div>
@@ -140,7 +140,7 @@ const HeaderStudent = ({ onToggleSidebar }) => {
                     </div>
                     <div className="user-img d-flex align-items-center">
                       <div className="avatar avatar-md">
-                        <img src="https://yt3.ggpht.com/lSClN1ModrCoiB02Xwx5KyiUbBWkO9Qc1Tgnw4LGByp4f6a4y9ZrKnLxGOYK0jcxGGzwoYj1qQ=s108-c-k-c0x00ffffff-no-rj"/>
+                        <img src={studentGender ? avtNam : avtNu} alt="User Avatar" />
                       </div>
                     </div>
                   </div>
@@ -162,7 +162,7 @@ const HeaderStudent = ({ onToggleSidebar }) => {
         </nav>
       </header>
     </div>
-  )
+  );
 }
 
 export default HeaderStudent;

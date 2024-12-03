@@ -157,7 +157,7 @@ const Bill = () => {
       const response = await createBill2Service(requestBody);
       if (response.data.code === '200') {
 
-        setError('Thành công');
+        alert("Thành công")
       } else {
         setError('Lỗi');
       }

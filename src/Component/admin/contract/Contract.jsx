@@ -64,7 +64,8 @@ const Contract = () => {
         updateContractService(contractId, updatedContract)
           .then(response => {
             if (response.data.code === '200') {
-              alert('Contract updated successfully');
+              alert('Sửa thành công');
+              navigate('/admin/contracts');
             } else {
               alert('Failed to update contract');
             }
