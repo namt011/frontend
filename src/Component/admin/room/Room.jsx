@@ -36,27 +36,31 @@ const Room = () => {
           setRoomGender(room.roomGender);
           setFloor(room.floor.floorId);
           setRoomValid(room.roomValid); 
-
+  
           // Fetch students for the room when updating
           listStudent2()
-          .then((res) => {
-            if (Array.isArray(res.data.data)) {
-              // Filter students who are in the current room
-              const studentsInRoom = res.data.data.filter(student => student.roomDTO && student.roomDTO.roomId === roomId);
-              setStudents(studentsInRoom);
-            } else {
-              console.error('Expected an array but got:', res.data);
-            }
-          })
-          .catch((error) => {
-            console.error('Error fetching students:', error);
-          });
-      })
-      .catch((error) => {
-        console.error('Error fetching room data:', error);
-      });
-  }
-
+            .then((res) => {
+              if (Array.isArray(res.data.data)) {
+                // Filter students who are in the current room
+                const studentsInRoom = res.data.data.filter(student => student.roomDTO && student.roomDTO.roomId === roomId);
+                setStudents(studentsInRoom);
+                
+                // Set the roomNumber based on the number of students
+                setRoomNumber(studentsInRoom.length);
+              } else {
+                console.error('Expected an array but got:', res.data);
+              }
+            })
+            .catch((error) => {
+              console.error('Error fetching students:', error);
+            });
+        })
+        .catch((error) => {
+          console.error('Error fetching room data:', error);
+        });
+    }
+  
+    // Fetch floors and room types
     listFloor()
       .then((response) => {
         setFloors(response.data.data);
@@ -64,7 +68,7 @@ const Room = () => {
       .catch((error) => {
         console.error('Error fetching floors:', error);
       });
-
+  
     listRoomType()
       .then((response) => {
         setRoomTypes(response.data.data);
@@ -72,14 +76,15 @@ const Room = () => {
       .catch((error) => {
         console.error('Error fetching room types:', error);
       });
-
+  
     const handleResize = () => {
       setIsActive(window.innerWidth >= 1200);
     };
-
+  
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [roomId]);
+  
 
   const addStudentRoom = () =>{
     navigate('/admin/add-student-room', { state: { roomName } });
@@ -137,7 +142,8 @@ const Room = () => {
       floor: { floorId: floor },
       roomGender: selectedFloor.building.buildingGender,
       roomStatus: roomStatus,
-      roomValid: roomId ? undefined : true
+      roomValid: roomId ? undefined : true,
+      roomNumber: roomId ? roomNumber : 0  // Set roomNumber based on current student count
     };
   
     if (roomId) {
@@ -158,6 +164,7 @@ const Room = () => {
         });
     }
   };
+  
   
   const toggleSidebar = () => {
     setIsActive((prev) => !prev);
@@ -259,7 +266,6 @@ const Room = () => {
                             >
                               {roomId ? 'Cập nhật' : 'Thêm mới'}
                             </button>
-                            <button type='reset' className='btn btn-light-secondary me-1 mb-1'>Reset</button>
                           </div>
                         </div>
                       </form>
@@ -326,7 +332,6 @@ const Room = () => {
                             >
                               Thêm sinh viên
                             </button>
-                            <button type='reset' className='btn btn-light-secondary me-1 mb-1'>Reset</button>
                           </div>
                         </div>
                         </div>

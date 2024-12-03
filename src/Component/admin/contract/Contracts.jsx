@@ -8,8 +8,12 @@ import { listContract, deleteContractService } from '../../service/ContractServi
 const Contracts = () => {
   const [isActive, setIsActive] = useState(window.innerWidth >= 1200);
   const [contracts, setContracts] = useState([]);
+  const [filteredContracts, setFilteredContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [contractsPerPage] = useState(10);
 
   const navigate = useNavigate();
 
@@ -36,6 +40,7 @@ const Contracts = () => {
                 contractStatus : contract.contractStatus
               }));
               setContracts(processedData);
+              setFilteredContracts(processedData);  // Set filtered data initially
             } else {
               throw new Error('Data structure is invalid');
             }
@@ -62,15 +67,14 @@ const Contracts = () => {
     const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa hợp đồng này?");
     if (confirmDelete) {
       deleteContractService(contractId)
-        .then((response) => {
-          // Refresh the contract list after deleting
-          console.log(response)
+        .then(() => {
           setContracts(contracts.filter(contract => contract.contractId !== contractId));
+          setFilteredContracts(filteredContracts.filter(contract => contract.contractId !== contractId));  // Update filtered contracts as well
         })
         .catch((error) => {
           console.error(error);
           setError("Không thể xóa hợp đồng.");
-          alert('Không thể xóa hợp đồng.')
+          alert('Không thể xóa hợp đồng.');
         });
     }
   };
@@ -89,6 +93,40 @@ const Contracts = () => {
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
     return `${day}-${month}-${year}`;
+  };
+
+  // Search handler
+  const handleSearch = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+    if (query) {
+      setFilteredContracts(contracts.filter(contract =>
+        contract.student.fullname.toLowerCase().includes(query) ||
+        contract.student.studentId.toLowerCase().includes(query)
+      ));
+    } else {
+      setFilteredContracts(contracts);
+    }
+    setCurrentPage(1);  // Reset to first page when a search is done
+  };
+
+  // Pagination handlers
+  const indexOfLastContract = currentPage * contractsPerPage;
+  const indexOfFirstContract = indexOfLastContract - contractsPerPage;
+  const currentContracts = filteredContracts.slice(indexOfFirstContract, indexOfLastContract);
+
+  const totalPages = Math.ceil(filteredContracts.length / contractsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handlePrevious = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  };
+
+  const handleNext = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
   };
 
   // Resize handler for sidebar
@@ -118,7 +156,13 @@ const Contracts = () => {
                       <div className="m-2"></div>
                       <form>
                         <div className="input-group ml-3">
-                          <input type="text" className="form-control" placeholder="Search" />
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Tìm kiếm "
+                            value={searchQuery}
+                            onChange={handleSearch}
+                          />
                           <div className="input-group-btn">
                             <button className="btn btn-default" type="submit">
                               <i className="bi bi-search"></i>
@@ -145,10 +189,10 @@ const Contracts = () => {
                             <tr><td colSpan="6">Loading...</td></tr>
                           ) : error ? (
                             <tr><td colSpan="6">Error: {error}</td></tr>
-                          ) : contracts.length > 0 ? (
-                            contracts.map((contract,index) => (
+                          ) : currentContracts.length > 0 ? (
+                            currentContracts.map((contract, index) => (
                               <tr key={contract.contractId}>
-                                <td>{index +1}</td>
+                                <td>{index + 1}</td>
                                 <td>{contract.student?.studentId}</td>
                                 <td>{contract.student?.fullname}</td>
                                 <td>{formatDate(contract.startDate)}</td>
@@ -156,8 +200,8 @@ const Contracts = () => {
                                 <td>{contract.contractStatus}</td>
                                 <td>
                                   <div className="buttons">
-                                    <a href="" className="btn btn-primary rounded-pill mb-0 mr-0" onClick={() => updateContract(contract.contractId)}>Sửa</a>
-                                    <a href="" className="btn btn-danger rounded-pill mb-0 mr-0" onClick={() => deleteContract(contract.contractId)}>Xóa</a>
+                                    <a href="#" className="btn btn-primary rounded-pill mb-0 mr-0" onClick={() => updateContract(contract.contractId)}>Sửa</a>
+                                    <a href="#" className="btn btn-danger rounded-pill mb-0 mr-0" onClick={() => deleteContract(contract.contractId)}>Xóa</a>
                                   </div>
                                 </td>
                               </tr>
@@ -167,6 +211,22 @@ const Contracts = () => {
                           )}
                         </tbody>
                       </table>
+                    </div>
+                    {/* Pagination */}
+                    <div className="pagination justify-content-end">
+                      <ul className="pagination">
+                        <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={handlePrevious} disabled={currentPage === 1}>Previous</button>
+                        </li>
+                        {[...Array(totalPages)].map((_, index) => (
+                          <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                            <button onClick={() => handlePageChange(index + 1)} className="page-link">{index + 1}</button>
+                          </li>
+                        ))}
+                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={handleNext} disabled={currentPage === totalPages}>Next</button>
+                        </li>
+                      </ul>
                     </div>
                   </div>
                 </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate để chuyển hướng
 import HeaderStudent from './HeaderStudent';
 import SideBarStudent from './SideBarStudent';
+import Footer from '../Footer';
 import { listRoomType } from '../service/RoomService'; // Giữ nguyên import listRoomType
 
 const MainStudentPage = () => {
@@ -86,23 +87,8 @@ const MainStudentPage = () => {
                             </div>
                         </main>
                     </div>
+<Footer/>
                 </div>
-
-                <footer className="bg-light text-center text-lg-start mt-4">
-                    <div className="container p-4">
-                        <div className="row">
-                            <div className="col-lg-4 col-md-6 mb-4">
-                                <h5 className="text-uppercase">Section</h5>
-                                <ul className="list-unstyled">
-                                    <li><a href="#!" className="text-dark">Home</a></li>
-                                    <li><a href="#!" className="text-dark">Features</a></li>
-                                    <li><a href="#!" className="text-dark">Pricing</a></li>
-                                    <li><a href="#!" className="text-dark">FAQs</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
             </div>
         </div>
     );

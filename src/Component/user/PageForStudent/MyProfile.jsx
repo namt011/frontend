@@ -262,7 +262,7 @@ const MyProfile = () => {
   }
   function pageTitle() {
     if (ID || studentIdFromState) {
-      return <h4 className="card-title">Cập nhật thông tin sinh viên</h4>;
+      return <h4 className="card-title">Thông tin sinh viên</h4>;
     } else {
       return <h4 className="card-title">Thêm mới sinh viên</h4>;
     }

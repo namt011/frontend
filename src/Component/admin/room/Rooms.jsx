@@ -10,11 +10,20 @@ const Rooms = () => {
   const [activeTab, setActiveTab] = useState("");
   const [tabsData, setTabsData] = useState([]);
   const [buildings, setBuildings] = useState([]);
-  const [rooms, setRooms] = useState([]); // Initialize as empty array instead of undefined
+  const [rooms, setRooms] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const { roomId } = useParams();
   const navigator = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1); 
+  const [roomsPerPage] = useState(10);
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page on new search
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,7 +69,6 @@ const Rooms = () => {
     setIsActive(prev => !prev);
   };
 
-  // Compute cardDataByTab based on the rooms fetched, with null check
   const cardDataByTab = rooms?.reduce((acc, room) => {
     if (!room?.floor?.building?.buildingId) return acc;
     
@@ -80,27 +88,56 @@ const Rooms = () => {
 
     return acc;
   }, {}) || {};
+
+  const filteredRooms = cardDataByTab[activeTab]?.filter(room =>
+    room.title.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
+  const totalPages = Math.ceil(filteredRooms.length / roomsPerPage);
+
+  const currentRooms = filteredRooms.slice(
+    (currentPage - 1) * roomsPerPage, 
+    currentPage * roomsPerPage
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+  const pageNumbers = [];
+for (let i = 1; i <= totalPages; i++) {
+  pageNumbers.push(i);
+}
+
   function updateRoom(roomId) {
     navigator(`/admin/update-room/${roomId}`, {
         state: {
           roomId
         }
-    })
-}
-const deleteRoom = (roomId) => {
-  const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa phòng này?");
-  if (confirmDelete) {
-    deleteRoomService(roomId)
-      .then(() => {
-        // Sau khi xóa thành công, cập nhật lại danh sách phòng
-        setRooms((prevRooms) => prevRooms.filter(room => room.roomId !== roomId));
-      })
-      .catch(error => {
-        console.error(error);
-        // Xử lý lỗi nếu có
-      });
+    });
   }
-};
+
+  const deleteRoom = (roomId) => {
+    const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa phòng này?");
+    if (confirmDelete) {
+      deleteRoomService(roomId)
+        .then(() => {
+          setRooms((prevRooms) => prevRooms.filter(room => room.roomId !== roomId));
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -119,6 +156,7 @@ const deleteRoom = (roomId) => {
       </div>
     );
   }
+
   return (
     <div id='app'>
       <div id='main'>
@@ -137,13 +175,18 @@ const deleteRoom = (roomId) => {
                       <div>
                         <a href="/admin/add-room" className="btn btn-success">Thêm mới</a>
                       </div>
-                      <div className='m-2'>
-                      </div>
+                      <div className='m-2'></div>
                       <form>
                         <div className="input-group ml-3">
-                          <input type="text" className="form-control" placeholder="Search" />
+                          <input 
+                            type="text" 
+                            className="form-control" 
+                            placeholder="Search" 
+                            value={searchTerm} 
+                            onChange={handleSearch} 
+                          />
                           <div className="input-group-btn">
-                            <button className="btn btn-default" type="submit">
+                            <button className="btn btn-default" type="button">
                               <i className="bi bi-search"></i>
                             </button>
                           </div>
@@ -185,18 +228,18 @@ const deleteRoom = (roomId) => {
                                       key={tab.id}
                                     >
                                       <section id="groups" className="shadow-sm mb-5 rounded">
-  <div className="row match-height">
-    <div className="col-12">
-      <div className="card outer-card">
-        <div className="card-content">
-          <div className="card-body">
-            {cards.length > 0 ? (
-              <div className="nested-card-grid">
-                {cards.map((card, index) => (
-                  <div key={index} className="card inner-card shadow mb-5 rounded">
-                    <div className="card-content">
-                      <div className="card-body p-3">
-                        <div className="card-title d-flex justify-content-between">
+                                        <div className="row match-height">
+                                          <div className="col-12">
+                                            <div className="card outer-card">
+                                              <div className="card-content">
+                                                <div className="card-body">
+                                                  {cards.length > 0 ? (
+                                                    <div className="nested-card-grid">
+                                                      {currentRooms.map((card, index) => (
+                                                        <div key={index} className="card inner-card shadow mb-5 rounded">
+                                                          <div className="card-content">
+                                                            <div className="card-body p-3">
+                                                            <div className="card-title d-flex justify-content-between">
                           <h4>{card.title}</h4>
                           <button
                             type="button"
@@ -229,9 +272,9 @@ const deleteRoom = (roomId) => {
                             </svg>
                           </button>
                         </div>
-                        <p className="card-text">{card.text}</p>
-                        <small className="text-muted">Số người đang ở {card.roomNumber}/{card.roomMaxNumber} người</small>
-                        <div className="card-footer p-0 mt-2 pt-2">
+                                                              <p className="card-text">Tối đa {card.roomMaxNumber} người</p>
+                                                              <p className="card-text">Số người đang ở: {card.roomNumber}</p>
+                                                              <div className="card-footer p-0 mt-2 pt-2">
                           <div className="d-flex gap-2">
                             <button type="button" className="btn btn-primary" onClick={()=>updateRoom(card.ID)}>
                               <svg
@@ -267,21 +310,35 @@ const deleteRoom = (roomId) => {
                             </button>
                           </div>
                         </div>
+
+                                                            </div>
+                                                          </div>
+                                                        </div>
+                                                      ))}
+                                                    </div>
+                                                  ) : (
+                                                    <p>No rooms available.</p>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </section>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </>
+                          ) : (
+                            <p>No buildings available.</p>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="alert alert-info">No rooms found for this building.</div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+                    
 
-  <style>
+                    <style>
     {`
       .nested-card-grid {
         display: grid;
@@ -306,29 +363,31 @@ const deleteRoom = (roomId) => {
       }
     `}
   </style>
-</section>
-
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </>
-                          ) : (
-                            <div className="alert alert-info">
-                              No buildings found. Please add buildings first.
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <div className="pagination justify-content-end">
+                      <ul className="pagination">
+                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={handlePrevious} disabled={currentPage === 1}>Previous</button>
+                        </li>
+                        {pageNumbers.map((number) => (
+                          <li key={number} className={`page-item ${number === currentPage ? 'active' : ''}`}>
+                            <button onClick={() => paginate(number)} className="page-link">
+                              {number}
+                            </button>
+                          </li>
+                        ))}
+                        <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                          <button className="page-link" onClick={handleNext} disabled={currentPage === totalPages}>Next</button>
+                        </li>
+                      </ul>
+                    </div>
           </section>
         </div>
-        <Footer />
       </div>
+      <Footer />
     </div>
   );
 };

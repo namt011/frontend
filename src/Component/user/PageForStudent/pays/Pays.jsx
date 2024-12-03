@@ -9,8 +9,12 @@ import axiosInstance from '../../../service/axiosInstance ';
 const Pays = () => {
   const [isActive, setIsActive] = useState(window.innerWidth >= 1200);
   const [bills, setBills] = useState([]);
+  const [filteredBills, setFilteredBills] = useState([]); // Store filtered bills
   const [roomId, setRoomId] = useState(null);
-  const [polling, setPolling] = useState(false); // State to track if polling is active
+  const [polling, setPolling] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const [currentPage, setCurrentPage] = useState(1);
+  const [billsPerPage] = useState(5); // Set number of bills per page
 
   useEffect(() => {
     const handleResize = () => {
@@ -54,6 +58,7 @@ const Pays = () => {
         if (response?.data.data) {
           const filteredBills = response.data.data.filter((bill) => bill.roomDTO?.roomId === roomId);
           setBills(filteredBills);
+          setFilteredBills(filteredBills); // Initialize the filtered bills state
         }
       } catch (error) {
         console.error('Error fetching bills:', error);
@@ -65,7 +70,20 @@ const Pays = () => {
     }
   }, [roomId]);
 
-  // Payment handling function
+  // Filter bills based on search query (electricity value)
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+  };
+  
+  useEffect(() => {
+    const filtered = bills.filter((bill) =>
+      bill.studentPay?.fullname.toLowerCase().includes(searchQuery.toLowerCase()) // Filter by student's name
+    );
+    setFilteredBills(filtered);
+    setCurrentPage(1); // Reset to the first page when the search changes
+  }, [searchQuery, bills]);
+
+  // Handle payment
   const handlePayment = async (bill) => {
     const studentId = localStorage.getItem('ID');
     const amount = (bill.billDetails?.[1]?.value || 0) + (bill.billDetails?.[0]?.value || 0);
@@ -73,18 +91,14 @@ const Pays = () => {
     const params = { amount, studentId, billId };
 
     try {
-      // Trigger payment
       const response = await axiosInstance.get('/api/payment/vn-pay', { params });
       window.open(response.data.data.paymentUrl, '_blank');
 
-      // Start polling for payment status
-      setPolling(true); // Set polling to true to begin checking payment status
+      setPolling(true);
       let pollCount = 0;
 
-      // Polling function to check the payment status every 5 seconds for 15 minutes
       const interval = setInterval(async () => {
         if (pollCount >= 180) {
-          // Stop polling after 15 minutes (180 checks)
           clearInterval(interval);
           setPolling(false);
           alert('Timeout: Payment not confirmed.');
@@ -94,23 +108,21 @@ const Pays = () => {
         try {
           const paymentsResponse = await axiosInstance.get('/api/payment/getAll');
           const payment = paymentsResponse?.data?.body.data.find(
-            (p) => p.paymentInfo === `${studentId}_${billId}` 
+            (p) => p.paymentInfo === `${studentId}_${billId}`
           );
 
           if (payment) {
-            clearInterval(interval); // Stop polling once the correct payment is found
+            clearInterval(interval);
             setPolling(false);
-
-            // Handle successful payment, update the bill status
             alert('Thanh toán thành công!');
             const requestBody = { ...bill, studentPay: { ...bill.studentPay, studentId } };
             await updateBillService(bill.billId, requestBody);
 
-            // Re-fetch bills to update the UI
             const billResponse = await listBill();
             if (billResponse?.data.data) {
               const filteredBills = billResponse.data.data.filter((bill) => bill.roomDTO?.roomId === roomId);
               setBills(filteredBills);
+              setFilteredBills(filteredBills); // Update filtered bills
             }
           }
 
@@ -119,18 +131,40 @@ const Pays = () => {
         }
 
         pollCount++;
-      }, 5000); // Poll every 5 seconds
+      }, 5000);
     } catch (error) {
       console.error('Error processing payment:', error);
       alert('Có lỗi xảy ra khi thanh toán.');
     }
   };
 
-  // Render the table rows based on bills
+  // Pagination helpers
+  const indexOfLastBill = currentPage * billsPerPage;
+  const indexOfFirstBill = indexOfLastBill - billsPerPage;
+  const currentBills = filteredBills.slice(indexOfFirstBill, indexOfLastBill);
+
+  const totalPages = Math.ceil(filteredBills.length / billsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   const renderRows = () => {
-    return bills.map((bill, index) => (
+    return currentBills.map((bill, index) => (
       <tr key={bill.billId}>
-        <td>{index + 1}</td>
+        <td>{index + 1 + (currentPage - 1) * billsPerPage}</td>
         <td>
           {bill.billDetails?.[1]?.services?.serviceName === "WATER" ? "Tiền nước, " : "Tiền điện, "}
           {bill.billDetails?.[0]?.services?.serviceName === "WATER" ? "tiền nước " : "Tiền điện"}
@@ -140,16 +174,17 @@ const Pays = () => {
         <td>{bill.billDetails?.[0]?.value}</td>
         <td>{new Date(bill.billDetails?.[0]?.services?.createAt).toLocaleDateString()}</td>
         <td>
-        {bill.billStatus === "COMPLETE" ? (
-          <span style={{ color: 'green' }}>Đã thanh toán</span>
-        ) : (
-          <span style={{ color: 'red' }}>Chưa thanh toán</span>
-        )}
-      </td>
+          {bill.billStatus === "COMPLETE" ? (
+            <span style={{ color: 'green' }}>Đã thanh toán</span>
+          ) : (
+            <span style={{ color: 'red' }}>Chưa thanh toán</span>
+          )}
+        </td>
+        <td>{bill.studentPay?.fullname}</td> {/* Added column for student's name */}
         <td>
-          <button 
-            className={`btn ${bill.billStatus === "COMPLETE" ? 'btn-secondary' : 'btn-success'}`} 
-            onClick={() => handlePayment(bill)} 
+          <button
+            className={`btn ${bill.billStatus === "COMPLETE" ? 'btn-secondary' : 'btn-success'}`}
+            onClick={() => handlePayment(bill)}
             disabled={bill.billStatus === "COMPLETE" || polling}
           >
             Thanh toán
@@ -158,7 +193,6 @@ const Pays = () => {
       </tr>
     ));
   };
-  
 
   return (
     <div id="app">
@@ -171,14 +205,20 @@ const Pays = () => {
               <div className="col-12">
                 <div className="card p-2">
                   <div className="card-header pb-0">
-                    <h4 className="card-title">Danh sách thanh toán </h4>
+                    <h4 className="card-title">Danh sách thanh toán</h4>
                   </div>
                   <div className="card-content">
                     <div className="card-body d-flex">
                       <div className="m-2"></div>
                       <form>
                         <div className="input-group ml-3">
-                          <input type="text" className="form-control" placeholder="Search" />
+                          <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Tìm kiếm theo người thanh toán"
+                            value={searchQuery}
+                            onChange={handleSearch}
+                          />
                           <div className="input-group-btn">
                             <button className="btn btn-default" type="submit">
                               <i className="bi bi-search"></i>
@@ -198,6 +238,7 @@ const Pays = () => {
                             <th>Tiền nước</th>
                             <th>Ngày đến hạn</th>
                             <th>Trạng thái</th>
+                            <th>Sinh viên thanh toán</th>
                             <th>Hành động</th>
                           </tr>
                         </thead>
@@ -207,6 +248,25 @@ const Pays = () => {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Pagination */}
+            <div className="pagination justify-content-end">
+              <ul className="pagination">
+                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={handlePrevious} disabled={currentPage === 1}>Previous</button>
+                </li>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+                  <li key={number} className={`page-item ${currentPage === number ? 'active' : ''}`}>
+                    <button onClick={() => handlePageChange(number)} className="page-link">
+                      {number}
+                    </button>
+                  </li>
+                ))}
+                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                  <button className="page-link" onClick={handleNext} disabled={currentPage === totalPages}>Next</button>
+                </li>
+              </ul>
             </div>
           </section>
         </div>

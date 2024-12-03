@@ -57,10 +57,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<MainStudentPage />} />
 
-        <Route path="/user" element={<MainPage/>}/>
-        
         <Route path='/admin/students' element={<ProtectedRoute requiredRole="ROOT"><Students /></ProtectedRoute>}/>
         <Route path='/admin/add-student' element={<ProtectedRoute requiredRole="ROOT"><AddStudent/></ProtectedRoute>}/>
         <Route path='/admin/update-student/:studentId' element={<ProtectedRoute requiredRole="ROOT"><AddStudent/></ProtectedRoute>}/>

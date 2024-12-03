@@ -204,21 +204,7 @@ const ContractSTs = () => {
                         </div>
 
                         {/* Pagination */}
-                        <nav className="mt-3">
-                          <ul className="pagination justify-content-center">
-                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`} onClick={() => paginate(currentPage - 1)}>
-                              <a className="page-link" href="#" tabIndex="-1"><i className="bi bi-chevron-left"></i></a>
-                            </li>
-                            {[...Array(totalPages)].map((_, index) => (
-                              <li key={index} className={`page-item ${index + 1 === currentPage ? 'active' : ''}`} onClick={() => paginate(index + 1)}>
-                                <a className="page-link" href="#">{index + 1}</a>
-                              </li>
-                            ))}
-                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`} onClick={() => paginate(currentPage + 1)}>
-                              <a className="page-link" href="#"><i className="bi bi-chevron-right"></i></a>
-                            </li>
-                          </ul>
-                        </nav>
+                       
                       </>
                     )}
                   </div>
