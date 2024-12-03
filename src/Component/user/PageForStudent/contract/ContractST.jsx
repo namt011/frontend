@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import SideBarStudent from '../../SideBarStudent.jsx';
 import HeaderStudent from '../../HeaderStudent.jsx';
 import Footer from '../../../Footer.jsx';
+import hopdong from "../../../../assets/images/logo/hopdong.png"
 
 
 const ContractST = () => {
@@ -29,7 +30,7 @@ const ContractST = () => {
           <HeaderStudent onToggleSidebar={toggleSidebar} />
           <SideBarStudent isActive={isActive} onToggleSidebar={toggleSidebar} />
             <div id='main-content'>
-              Ở đây sẽ add ảnh cái hợp đồng vào
+              <img src={hopdong} alt="" />
             </div>
             <Footer/>
           </div>

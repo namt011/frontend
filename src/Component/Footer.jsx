@@ -15,60 +15,50 @@ const Footer = () => {
     </div>
 
     <div className="col mb-3">
-    <div class="follow-utc">
-                    <h6 class="ng-tns-c0-0">Theo dõi UTC</h6>
-                    <div class="social">
-        <a class="ng-tns-c0-0" href="https://www.facebook.com">
-            <i class="fab fa-facebook-f"></i>
+    <div className="follow-utc ">
+                    <h6 className="ng-tns-c0-0 d-flex justify-content-center align-items-center">Theo dõi UTC</h6>
+                    <div className="social d-flex justify-content-center align-items-center">
+        <a className="ng-tns-c0-0 m-3" href="https://www.facebook.com">
+            <i className="bi bi-facebook fs-3"></i> {/* fs-3 để tăng kích thước */}
         </a>
-                    <a class="ng-tns-c0-0" href="https://youtube.com">
-            <i class="fab fa-youtube"></i>
+                    <a className="ng-tns-c0-0 m-3" href="https://youtube.com">
+            <i className="bi bi-youtube fs-3"></i> {/* fs-3 để tăng kích thước */}
         </a>
-            <a class="ng-tns-c0-0" href="https://twitter.com">
-            <i class="fab fa-twitter"></i>
+            <a className="ng-tns-c0-0 m-3" href="https://twitter.com">
+            <i className="bi bi-twitter fs-3"></i> {/* fs-3 để tăng kích thước */}
         </a>
-                <a class="ng-tns-c0-0" href="https://plus.google.com/">
-            <i class="fab fa-google-plus"></i>
+                <a className="ng-tns-c0-0 m-3" href="https://plus.google.com/">
+            <i className="bi bi-google fs-3"></i> {/* fs-3 để tăng kích thước */}
         </a>
 </div>
     </div>
     </div>
 
     <div className="col mb-3">
-      <h5>Section</h5>
+      <h5></h5>
       <ul className="nav flex-column">
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Home</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Features</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Pricing</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">FAQs</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">About</a></li>
+        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted"></a></li>
+        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted"></a></li>
+        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted"></a></li>
+        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted"></a></li>
+        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted"></a></li>
       </ul>
     </div>
 
     <div className="col mb-3">
-      <h5>Section</h5>
+      <h5>Nhóm 9</h5>
       <ul className="nav flex-column">
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Home</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Features</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Pricing</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">FAQs</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">About</a></li>
+        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Nịnh Văn Nam</a></li>
+        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Nguyễn Thị Phương Anh</a></li>
+        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Phạm Thị Hà</a></li>
+        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Nguyễn Thanh Thảo</a></li>
+        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Nguyễn Anh Tuấn</a></li>
       </ul>
     </div>
 
-    <div className="col mb-3">
-      <h5>Section</h5>
-      <ul className="nav flex-column">
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Home</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Features</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">Pricing</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">FAQs</a></li>
-        <li className="nav-item mb-2"><a href="#" className="nav-link p-0 text-muted">About</a></li>
-      </ul>
-    </div>
   </footer>
     </div>
   )
 }
 
-export default Footer
+export default Footer;

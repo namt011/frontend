@@ -504,8 +504,8 @@ const AddStudent = () => {
                               required
                             >
                               <option value="" disabled>Vui lòng chọn trạng thái</option>
-                              <option value="1">Không còn học</option>
-                              <option value="2">Còn học</option>
+                              <option value="2">Không còn học</option>
+                              <option value="1">Còn học</option>
                             </select>
                             {errors.studentStatus && <small className="text-danger">{errors.studentStatus}</small>}
                             </div>

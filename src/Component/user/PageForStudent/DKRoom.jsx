@@ -128,7 +128,7 @@ const DKRoom = () => {
         relativesPhone,
         studentEmail,
         studentPriority,
-        studentStatus: 1,  // Default student status is 1
+        studentStatus: "1",  // Default student status is 1
       },
       staff: null,
       roomType: selectedRoomType,  // Assuming selectedRoomType is set correctly
