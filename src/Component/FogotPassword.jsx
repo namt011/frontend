@@ -21,7 +21,7 @@ const FogotPassword = () => {
       }
     } catch (error) {
       console.error(error);
-      alert('Có lỗi xảy ra khi gửi OTP');
+      alert('Thông tin email chưa chính xác');
     }
   };
 

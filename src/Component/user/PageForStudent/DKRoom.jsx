@@ -64,10 +64,49 @@ const DKRoom = () => {
   };
 
 
+  // Hàm validate form
+  const validateForm = () => {
+    const errors = {};
+    const classRegex = /^[A-Za-z0-9]+-[0-9]{2}$/;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!studentId) errors.studentId = "Mã sinh viên không được để trống";
+    if (!fullname) errors.fullname = "Họ và tên không được để trống";
+    if (!studentClass) {
+      errors.studentClass = "Lớp - Khóa không được để trống";
+    } else if (!classRegex.test(studentClass)) {
+      errors.studentClass = "Lớp - Khóa không đúng định dạng (VD: CNTT1-62)";
+    }
+    if (!dateOfBirth) errors.dateOfBirth = "Ngày sinh không được để trống";
+    if (!studentIdentification) errors.studentIdentification = "Căn cước công dân không được để trống";
+    if (!studentAddress) errors.studentAddress = "Địa chỉ không được để trống";
+    if (!phoneNumber) errors.phoneNumber = "Số điện thoại không được để trống";
+    if (!relativesPhone) errors.relativesPhone = "Số điện thoại người thân không được để trống";
+    if (!studentEmail) {
+      errors.studentEmail = "Email không được để trống";
+    } else if (!emailRegex.test(studentEmail)) {
+      errors.studentEmail = "Email không đúng định dạng";
+    }
+    if (studentGender === undefined) errors.studentGender = "Giới tính không được để trống";
+    if (!ethnicity) errors.ethnicity = "Dân tộc không được để trống";
+    if (!studentPriority) errors.studentPriority = "Ưu tiên không được để trống";
+
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handlePayment = async () => {
     if (polling) return;
+    
+    if (!validateForm()) {
+      alert("Vui lòng điền đầy đủ thông tin!");
+      return;
+    }
+
     setPolling(true);
+
+    const formattedDateOfBirth = new Date(dateOfBirth).toISOString().split('T')[0];
   
     const billId = Math.floor(1000000000 + Math.random() * 9000000000).toString(); // Tạo billId ngẫu nhiên với 20 ký tự
     const amount = selectedRoomType?.roomTypePrice + selectedRoomType?.roomTypeDeposit; // Tính tổng amount
@@ -77,7 +116,7 @@ const DKRoom = () => {
       student: {
         studentId,
         fullname,
-        dateOfBirth,
+        dateOfBirth: formattedDateOfBirth,
         startDate: new Date().toISOString(),
         endDate: new Date().toISOString(),
         studentClass,
@@ -122,10 +161,8 @@ const DKRoom = () => {
           
           if (paymentFound) {
             clearInterval(intervalId); // Dừng việc gọi API
-            
             // Thanh toán thành công, tiếp tục đăng ký sinh viên
             const signupResponse = await axiosInstance.post('/auth/signup', studentData);
-           
             alert("Đăng ký thành công!");
             navigator('/login')
           }
@@ -166,152 +203,159 @@ const DKRoom = () => {
                         <div className="row">
                           {/* Render input fields with error messages */}
                           <div className="col-md-6 col-12">
-                            <div className="form-group">
-                              <label>Mã sinh viên</label>
-                              <input
-  type="text"
-  className="form-control"
-  placeholder="Mã sinh viên"
-  value={studentId}
-  onChange={e => setStudentId(e.target.value)}
-  required// Đảm bảo readOnly được áp dụng khi có ID
-/>
+  <div className="form-group">
+    <label>Mã sinh viên</label>
+    <input
+      type="text"
+      className={`form-control ${errors.studentId ? 'is-invalid' : ''}`}
+      placeholder="Mã sinh viên"
+      value={studentId}
+      onChange={e => setStudentId(e.target.value)}
+      required
+    />
+    {errors.studentId && <small className="text-danger">{errors.studentId}</small>}
+  </div>
+</div>
 
-                              
-                            </div>
-                          </div>
-                          <div className="col-md-6 col-12">
-                            <div className="form-group">
-                              <label>Họ và tên</label>
-                              <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder="Họ và tên" 
-                                value={fullname}
-                                onChange={e => setFullname(e.target.value)}
-                                required
-                              />
-                             
-                            </div>
-                          </div>
-                          <div className="col-md-6 col-12">
-                            <div className="form-group">
-                              <label>Lớp - Khóa</label>
-                              <input 
-                                type="text" 
-                                className="form-control"
-                                placeholder="Lớp-Khóa" 
-                                value={studentClass}
-                                onChange={e => setStudentClass(e.target.value)}
-                                required
-                              />
-                             
-                            </div>
-                          </div>
-                          <div className="col-md-6 col-12">
-                          <div className="form-group">
-                            <label>Ngày sinh</label>
-                            <input 
-                              type="text" 
-                              className="form-control"
-                              placeholder="yyyy-mm-dd"
-                              value={dateOfBirth}
-                              onChange={e => setDateOfBirth(e.target.value)}
-                              required
-                            />
-                           
-                          </div>
-                        </div>
-                        <div className="col-md-6 col-12">
-                          <div className="form-group">
-                            <label>Căn cước công dân</label>
-                            <input 
-                              type="number" 
-                              className="form-control"
-                              placeholder="Căn cước công dân" 
-                              value={studentIdentification}
-                              onChange={e => setStudentIdentification(e.target.value)}
-                              required
-                            />
-                            
-                            </div>
-                        </div>
-                        <div className="col-md-6 col-12">
-                          <div className="form-group">
-                            <label>Địa chỉ</label>
-                            <input 
-                              type="text" 
-                              className="form-control"
-                              placeholder="Địa chỉ" 
-                              value={studentAddress}
-                              onChange={e => setStudentAddress(e.target.value)}
-                              required
-                            />
-                            
-                            </div>
-                        </div>
-                        <div className="col-md-6 col-12">
-                          <div className="form-group">
-                            <label>Số điện thoại</label>
-                            <input 
-                              type="number" 
-                              className="form-control"
-                              placeholder="Số điện thoại" 
-                              value={phoneNumber}
-                              onChange={e => setPhoneNumber(e.target.value)}
-                              required
-                            />
-                            
-                            </div>
-                        </div>
-                        <div className="col-md-6 col-12">
-                          <div className="form-group">
-                            <label>Số điện thoại người thân</label>
-                            <input 
-                              type="number" 
-                              className="form-control"
-                              placeholder="Số điện thoại người thân " 
-                              value={relativesPhone}
-                              onChange={e => setRelativesPhone(e.target.value)}
-                              required
-                            />
-                           
-                            </div>
-                        </div>
-                        <div className="col-md-6 col-12">
-                          <div className="form-group">
-                            <label>Email</label>
-                            <input 
-                              type="email" 
-                              className="form-control"
-                              placeholder="Email" 
-                              value={studentEmail}
-                              onChange={e => setStudentEmail(e.target.value)}
-                              required
-                            />
-                           
-                            </div>
-                        </div>
-                        
-                        <div className="col-md-6 col-12 mt-1">
-                          <label className='fw-bold'>Giới tính</label>
-                          <select 
-  className="form-select" 
-  value={studentGender ? '1' : '0'}
-  onChange={e => setStudentGender(e.target.value === '1')}
-  required
->
-<option value="" disabled>Chọn giới tính</option>
-  <option value="0">Nữ</option>
-  <option value="1">Nam</option>
-</select>
-                            
-                            </div>
+<div className="col-md-6 col-12">
+  <div className="form-group">
+    <label>Họ và tên</label>
+    <input 
+      type="text" 
+      className={`form-control ${errors.fullname ? 'is-invalid' : ''}`}
+      placeholder="Họ và tên" 
+      value={fullname}
+      onChange={e => setFullname(e.target.value)}
+      required
+    />
+    {errors.fullname && <small className="text-danger">{errors.fullname}</small>}
+  </div>
+</div>
+
+<div className="col-md-6 col-12">
+  <div className="form-group">
+    <label>Lớp - Khóa</label>
+    <input 
+      type="text" 
+      className="form-control"
+      placeholder="Lớp-Khóa (VD: CNTT1-62)" 
+      value={studentClass}
+      onChange={e => setStudentClass(e.target.value)}
+      required
+    />
+    {errors.studentClass && <small className="text-danger">{errors.studentClass}</small>}
+  </div>
+</div>
+
+<div className="col-md-6 col-12">
+  <div className="form-group">
+    <label>Ngày sinh</label>
+    <input 
+      type="date" 
+      className="form-control"
+      placeholder="yyyy-mm-dd"
+      value={dateOfBirth}
+      onChange={e => setDateOfBirth(e.target.value)}
+      required
+    />
+    {errors.dateOfBirth && <small className="text-danger">{errors.dateOfBirth}</small>}
+  </div>
+</div>
+
+<div className="col-md-6 col-12">
+  <div className="form-group">
+    <label>Căn cước công dân</label>
+    <input 
+      type="number" 
+      className={`form-control ${errors.studentIdentification ? 'is-invalid' : ''}`}
+      placeholder="Căn cước công dân" 
+      value={studentIdentification}
+      onChange={e => setStudentIdentification(e.target.value)}
+      required
+    />
+    {errors.studentIdentification && <small className="text-danger">{errors.studentIdentification}</small>}
+  </div>
+</div>
+
+<div className="col-md-6 col-12">
+  <div className="form-group">
+    <label>Địa chỉ</label>
+    <input 
+      type="text" 
+      className={`form-control ${errors.studentAddress ? 'is-invalid' : ''}`}
+      placeholder="Địa chỉ" 
+      value={studentAddress}
+      onChange={e => setStudentAddress(e.target.value)}
+      required
+    />
+    {errors.studentAddress && <small className="text-danger">{errors.studentAddress}</small>}
+  </div>
+</div>
+
+<div className="col-md-6 col-12">
+  <div className="form-group">
+    <label>Số điện thoại</label>
+    <input 
+      type="number" 
+      className={`form-control ${errors.phoneNumber ? 'is-invalid' : ''}`}
+      placeholder="Số điện thoại" 
+      value={phoneNumber}
+      onChange={e => setPhoneNumber(e.target.value)}
+      required
+    />
+    {errors.phoneNumber && <small className="text-danger">{errors.phoneNumber}</small>}
+  </div>
+</div>
+
+<div className="col-md-6 col-12">
+  <div className="form-group">
+    <label>Số điện thoại người thân</label>
+    <input 
+      type="number" 
+      className={`form-control ${errors.relativesPhone ? 'is-invalid' : ''}`}
+      placeholder="Số điện thoại người thân " 
+      value={relativesPhone}
+      onChange={e => setRelativesPhone(e.target.value)}
+      required
+    />
+    {errors.relativesPhone && <small className="text-danger">{errors.relativesPhone}</small>}
+  </div>
+</div>
+
+<div className="col-md-6 col-12">
+  <div className="form-group">
+    <label>Email</label>
+    <input 
+      type="email" 
+      className={`form-control ${errors.studentEmail ? 'is-invalid' : ''}`}
+      placeholder="Email" 
+      value={studentEmail}
+      onChange={e => setStudentEmail(e.target.value)}
+      required
+    />
+    {errors.studentEmail && <small className="text-danger">{errors.studentEmail}</small>}
+  </div>
+</div>
+
+<div className="col-md-6 col-12 mt-1">
+  <label className='fw-bold'>Giới tính</label>
+  <select 
+    className={`form-select ${errors.studentGender ? 'is-invalid' : ''}`} 
+    value={studentGender ? '1' : '0'}
+    onChange={e => setStudentGender(e.target.value === '1')}
+    required
+  >
+    <option value="" disabled>Chọn giới tính</option>
+    <option value="0">Nữ</option>
+    <option value="1">Nam</option>
+  </select>
+  {errors.studentGender && <small className="text-danger">{errors.studentGender}</small>}
+</div>
                         
                         <div className="col-md-6 col-12 mt-1">
                           <label className='fw-bold'>Dân tộc</label>
                           <select 
-                            className="form-select" 
+                            className={`form-select ${errors.ethnicity ? 'is-invalid' : ''}`} 
                             value={ethnicity}
                             onChange={e => setEthnicity(e.target.value)}
                             required
@@ -370,14 +414,14 @@ const DKRoom = () => {
         <option value="Sán Chay">Sán Chay</option>
         <option value="Sán Dìu">Sán Dìu</option>
         <option value="Pupeo">Pupeo</option>
-        </select>
+        </select>{errors.ethnicity && <small className="text-danger">{errors.ethnicity}</small>}
                            
                             </div>
                           
                           <div className="col-md-6 col-12 mt-1">
                             <label className='fw-bold'>Ưu tiên</label>
                             <select 
-                              className="form-select" 
+                              className={`form-select ${errors.studentPriority ? 'is-invalid' : ''}`} 
                               value={studentPriority}
                               onChange={e => setStudentPriority(e.target.value)}
                               required
@@ -409,7 +453,6 @@ const DKRoom = () => {
                                 setStudentEmail('');
                                 setStudentGender('');
                                 setEthnicity('');
-                                setStudentStatus('');
                                 setStudentPriority('');
                                 setErrors({});
                               }}
