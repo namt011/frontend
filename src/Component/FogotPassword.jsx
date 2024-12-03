@@ -126,7 +126,7 @@ const FogotPassword = () => {
                             </div>
                           </div>
                           <div className="col-12">
-                            <div className="form-floating mb-3">
+                            <div className="form-floating mb-3 pt-3">
                               <input
                                 type={showNewPassword ? "text" : "password"}
                                 className="form-control"

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -14,6 +14,13 @@ const SideBarStudent = ({ isActive, onToggleSidebar }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
+  const [role, setRole] = useState(null);
+
+  useEffect(() => {
+    // Lấy role từ localStorage khi component được render
+    const userRole = localStorage.getItem('role');
+    setRole(userRole);
+  }, []);
 
   const toggleSubmenu = (index) => {
     setActiveSubmenus(prev => ({
@@ -29,9 +36,9 @@ const SideBarStudent = ({ isActive, onToggleSidebar }) => {
   const confirmLogout = () => {
     // Thực hiện điều hướng đến trang đăng nhập
     localStorage.removeItem('accessToken');
-  localStorage.removeItem('role');
-  localStorage.removeItem('refreshToken');
-  navigate('/login'); // Redirect to the login page
+    localStorage.removeItem('role');
+    localStorage.removeItem('refreshToken');
+    navigate('/login'); // Redirect to the login page
     setShowLogoutDialog(false);
   };
 
@@ -39,14 +46,19 @@ const SideBarStudent = ({ isActive, onToggleSidebar }) => {
     setShowLogoutDialog(false);
   };
 
+  // Mảng sidebarItems chứa tất cả các mục sidebar
   const sidebarItems = [
-    { title: 'Đăng ký phòng', icon: 'bi bi-house', link: '/dangkiphong' },
+    // Kiểm tra role, nếu là USER thì ẩn 'Đăng ký phòng'
+    ...(role !== 'USER' ? [{ title: 'Đăng ký phòng', icon: 'bi bi-house', link: '/dangkiphong' }] : []),
     { title: 'Yêu cầu khiếu nại', icon: 'bi bi-exclamation-circle', link: '/requests' },
     { title: 'Hợp đồng', icon: 'bi bi-file-text', link: '/contracts' },
     { title: 'Thanh toán', icon: 'bi bi-wallet2', link: '/pays' },
     { title: 'Thông tin cá nhân', icon: 'bi bi-person', link: '/my-profile' }
   ];
 
+  // Nếu không có role, chỉ hiển thị "Đăng ký phòng"
+  const filteredSidebarItems = role ? sidebarItems : [{ title: 'Đăng ký phòng', icon: 'bi bi-house', link: '/dangkiphong' }];
+  
   return (
     <div>
       <div id="sidebar" className={`sidebar ${isActive ? 'active' : ''}`} ref={sidebarRef}>
@@ -76,7 +88,7 @@ const SideBarStudent = ({ isActive, onToggleSidebar }) => {
           <div className="sidebar-menu">
             <ul className="menu">
               <li className="sidebar-title">Menu</li>
-              {sidebarItems.map((item, index) => (
+              {filteredSidebarItems.map((item, index) => (
                 <li key={index} className={`sidebar-item ${item.subItems ? 'has-sub' : ''}`}>
                   {item.subItems ? (
                     <>
@@ -128,11 +140,11 @@ const SideBarStudent = ({ isActive, onToggleSidebar }) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Stack spacing={1} sx={{ alignItems: 'center' }}/>
-      <Stack direction="row" spacing={1}>
-        <Chip onClick={cancelLogout} label="Hủy" color="primary" />
-        <Chip onClick={confirmLogout} label="Đồng ý" color="success" />
-      </Stack>
+          <Stack spacing={1} sx={{ alignItems: 'center' }} />
+          <Stack direction="row" spacing={1}>
+            <Chip onClick={cancelLogout} label="Hủy" color="primary" />
+            <Chip onClick={confirmLogout} label="Đồng ý" color="success" />
+          </Stack>
         </DialogActions>
       </Dialog>
     </div>
