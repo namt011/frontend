@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Sử dụng axios để gọi API
+import axios from 'axios';
 import axiosInstance from './service/axiosInstance ';
-// Đảm bảo axiosInstance được định nghĩa và cấu hình đúng
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -33,17 +32,14 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  // Lưu trữ accessToken và refreshToken vào localStorage sau khi đăng nhập thành công
-  const saveUserSession = (accessToken, refreshToken,data) => {
-    localStorage.setItem('accessToken', accessToken); // Lưu accessToken vào localStorage
+  const saveUserSession = (accessToken, refreshToken, data) => {
+    localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
-    localStorage.setItem('ID', data); // Lưu refreshToken vào localStorage
+    localStorage.setItem('ID', data);
   };
 
-  // Gọi API /user/getAll và lấy roleName từ dữ liệu
   const fetchUserRole = async () => {
     try {
-      // Gọi API /user/getAll với axiosInstance
       const response = await axiosInstance.get('/user/getAll', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -57,14 +53,12 @@ const Login = () => {
 
         if (user) {
           const roleName = user.role.roleName;
-          // Lưu roleName vào localStorage hoặc làm gì đó với giá trị này
           localStorage.setItem('role', roleName);
 
-          // Kiểm tra role và điều hướng
           if (roleName !== 'ROOT') {
-            navigate('/requests'); // Nếu role không phải ROOT, chuyển đến trang đăng ký phòng
+            navigate('/requests');
           } else {
-            navigate('/admin/students'); // Nếu role là ROOT, chuyển đến trang admin
+            navigate('/admin/students');
           }
         } else {
           console.error('Token không khớp với bất kỳ người dùng nào');
@@ -79,7 +73,6 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Submitting login form...');
 
     try {
       const response = await axios.post('http://localhost:8080/auth/signin', {
@@ -87,15 +80,10 @@ const Login = () => {
         password: password,
       });
 
-      console.log(response); // Kiểm tra xem phản hồi có đúng không
-
-      if (response.status === 200) { // Kiểm tra status code thay vì `response.code`
-        const { accessToken, refreshToken,data } = response.data;
-
-        saveUserSession(accessToken, refreshToken,data); // Lưu accessToken vào localStorage
-
-        // Sau khi lưu accessToken, gọi API lấy role
-        await fetchUserRole(); // Lấy roleName và điều hướng sau khi gọi API thành công
+      if (response.status === 200) {
+        const { accessToken, refreshToken, data } = response.data;
+        saveUserSession(accessToken, refreshToken, data);
+        await fetchUserRole();
       } else {
         setErrorMessage('Login failed. Please try again.');
       }
@@ -106,7 +94,7 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div >
       <section className="bg-light py-3 py-md-5">
         <div className="container">
           <div className="row justify-content-center">
@@ -193,9 +181,14 @@ const Login = () => {
 
                       <div className="col-12">
                         <p className="m-0 text-secondary text-center">
-                          Don't have an account?{' '}
+                          Chưa có tài khoản?{' '}
                           <a href="/dangkiphong" className="link-primary text-decoration-none">
-                            Sign up
+                            Đăng ký
+                          </a>
+                        </p>
+                        <p className="m-0 text-secondary text-center">
+                          <a href="/forgotpassword" className="link-primary text-decoration-none">
+                            Quên mật khẩu?
                           </a>
                         </p>
                       </div>

@@ -49,6 +49,7 @@ import ContractSTs from './Component/user/PageForStudent/contract/ContractSTs.js
 import ContractST from './Component/user/PageForStudent/contract/ContractST.jsx';
 import Pays from './Component/user/PageForStudent/pays/Pays.jsx';
 import MyProfile from './Component/user/PageForStudent/MyProfile.jsx';
+import FogotPassword from './Component/FogotPassword.jsx';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -103,6 +104,7 @@ function App() {
         <Route path='/admin/update-bill/:billId' element={<ProtectedRoute requiredRole="ROOT"><Bill/></ProtectedRoute>}/>
 
         <Route path='/login' element={<Login/>}/>
+        <Route path='/forgotpassword' element={<FogotPassword/>}/>
 
         <Route path='/dangkiphong' element={<MainStudentPage/>}/>
 

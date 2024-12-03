@@ -527,38 +527,19 @@ const MyProfile = () => {
                             </select>
                             {errors.studentPriority && <small className="text-danger">{errors.studentPriority}</small>}
                             </div>
-                          <div className="col-12 d-flex justify-content-end mt-3">
-                            <button 
-                              type="submit"
-                              className="btn btn-primary me-2"
-                              onClick={saveOrUpdateStudent}
-                            >
-                              Lưu
-                            </button>
-                            <button 
-                              type="reset" 
-                              className="btn btn-light" 
-                              onClick={() => {
-                                setStudentId('');
-                                setFullname('');
-                                setDateOfBirth('');
-                                setStudentIdentification('');
-                                setStudentAddress('');
-                                setPhoneNumber('');
-                                setRelativesPhone('');
-                                setStudentEmail('');
-                                setStudentGender('');
-                                setEthnicity('');
-                                setStudentStatus('');
-                                setStudentPriority('');
-                                setErrors({});
-                              }}
-                            >
-                              Reset
-                            </button>
-                          </div>
+                          
                         </div>
                       </form>
+                      <div className="col-12 d-flex justify-content-end mt-3">
+                      <a href="/forgotpassword">
+  <button 
+    type="submit"
+    className="btn btn-primary me-2"
+  >
+    Đổi mật khẩu
+  </button>
+</a>
+                          </div>
                     </div>
                   </div>
                 </div>
