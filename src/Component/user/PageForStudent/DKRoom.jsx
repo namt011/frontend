@@ -188,7 +188,10 @@ const DKRoom = () => {
         studentStatus: "1",  // Default student status is 1
       },
       staff: null,
-      roomType: selectedRoomType,  // Assuming selectedRoomType is set correctly
+      roomType: selectedRoomType,
+      startDate: new Date('2024-12-01T00:00:00Z').toISOString(), 
+endDate: new Date('2025-05-04T00:00:00Z').toISOString(),
+        // Assuming selectedRoomType is set correctly
       reduceCost: 0  // Default reduce cost
     };
   

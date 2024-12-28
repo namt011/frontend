@@ -133,6 +133,7 @@ const RequestST = () => {
                         id="basicInput"
                         value={requirementName}
                         onChange={(e) => setRequirementName(e.target.value)}
+                        required
                       />
                     </div>
                   </div>
@@ -145,6 +146,7 @@ const RequestST = () => {
                         id="basicInput"
                         value={requirementDes}
                         onChange={(e) => setRequirementDes(e.target.value)}
+                        required
                       />
                     </div>
                   </div>
